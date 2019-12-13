@@ -58,6 +58,7 @@ class CanvasEvent {
         this.context.save();
         this.context.beginPath();
         this.context.setLineDash([10, 5]); // 设置虚线效果，数组中以此为实线长度，虚线长度
+        // 通过设置 this.context.lineDashOffset 来绘制蚂蚁线
         this.context.moveTo(this.x, 0);
         this.context.lineTo(this.x, this.canvas.height);
         this.context.moveTo(0, this.y);
