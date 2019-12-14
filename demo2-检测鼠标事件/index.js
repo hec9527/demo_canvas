@@ -46,6 +46,7 @@ class CanvasEvent {
         el.style.width = '800px';
         el.style.height = '450px';
         el.style.background = '#ccc';
+        el.style.background = 'rgba(255, 255, 255, 0.3)';
         el.width = 800;
         el.height = 450;
         document.getElementsByTagName('body')[0].appendChild(el);
