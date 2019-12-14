@@ -3,7 +3,23 @@
  */
 class DrawClock {
     constructor() {
-        this.canvas = document.getElementById('canvas') || this.newCanvas();
+        this.canvas =
+            document.getElementById('canvas') ||
+            function() {
+                const el = document.createElement('canvas');
+                el.style.width = '800px';
+                el.style.height = '450px';
+                el.style.position = 'absolute';
+                el.style.margin = 'auto';
+                el.style.top = 0;
+                el.style.bottom = 0;
+                el.style.left = 0;
+                el.style.right = 0;
+                el.width = 800;
+                el.height = 450;
+                el.style.background = 'rgba(0, 0, 0, 0.3';
+                return el;
+            };
         this.ctx = this.canvas.getContext('2d');
         this.FONT_HEIGHT = 20; // 字体高度  字体大小
         this.MARGIN = 35; // 距离边框的距离
@@ -29,24 +45,19 @@ class DrawClock {
         this.ctx.strokeStyle = '#fff';
     }
 
-    newCanvas() {
-        const el = document.createElement('canvas');
-        el.id = 'canvas';
-        el.width = 800;
-        el.height = 450;
-        el.style.width = 800 + 'px';
-        el.style.height = 450 + 'px';
-        el.style.background = 'rgba(0, 0, 0, 0.3)';
-        document.getElementsByTagName('body')[0].appendChild(el);
-        return el;
-    }
-
     // 绘制外圈圆环
     drawCircle() {
         this.ctx.save();
         this.ctx.lineWidth = 8;
         this.ctx.beginPath();
-        this.ctx.arc(this.canvas.width / 2, this.canvas.height / 2, this.RADIUS, 0, Math.PI * 2, true);
+        this.ctx.arc(
+            this.canvas.width / 2,
+            this.canvas.height / 2,
+            this.RADIUS,
+            0,
+            Math.PI * 2,
+            true
+        );
         this.ctx.stroke();
         this.ctx.restore();
     }
@@ -73,7 +84,10 @@ class DrawClock {
                 lineLength = 15;
             }
 
-            this.ctx.moveTo(this.canvas.width / 2 + Math.cos(angle) * this.RADIUS, this.canvas.height / 2 + Math.sin(angle) * this.RADIUS);
+            this.ctx.moveTo(
+                this.canvas.width / 2 + Math.cos(angle) * this.RADIUS,
+                this.canvas.height / 2 + Math.sin(angle) * this.RADIUS
+            );
             this.ctx.lineTo(
                 this.canvas.width / 2 + Math.cos(angle) * (this.RADIUS - lineLength),
                 this.canvas.height / 2 + Math.sin(angle) * (this.RADIUS - lineLength)
@@ -104,7 +118,14 @@ class DrawClock {
     // 绘制中间的原点
     drawCenter() {
         this.ctx.beginPath();
-        this.ctx.arc((this.canvas.width / 2) | 0, (this.canvas.height / 2) | 0, 5, 0, Math.PI * 2, true);
+        this.ctx.arc(
+            (this.canvas.width / 2) | 0,
+            (this.canvas.height / 2) | 0,
+            5,
+            0,
+            Math.PI * 2,
+            true
+        );
         this.ctx.fill();
     }
 
@@ -139,16 +160,24 @@ class DrawClock {
         const date = new Date();
         this.ctx.save();
         this.ctx.font = 40 + 'px Arial';
-        const hour = `${date.getHours()} : ${date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()} : ${
-            date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds()
-        }`;
+        const hour = `${date.getHours()} : ${
+            date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()
+        } : ${date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds()}`;
         const hourSize = this.ctx.measureText(hour);
-        this.ctx.fillText(hour, (this.canvas.width / 2 - hourSize.width / 2) | 0, this.canvas.height / 2 - (this.RADIUS / 9) * 2);
+        this.ctx.fillText(
+            hour,
+            (this.canvas.width / 2 - hourSize.width / 2) | 0,
+            this.canvas.height / 2 - (this.RADIUS / 9) * 2
+        );
 
         this.ctx.font = 15 + 'px Arial';
         const weekDay = `星期${this.mapWeekDay(date.getDay())}`;
         const weekDaySize = this.ctx.measureText(weekDay).width;
-        this.ctx.fillText(weekDay, (this.canvas.width / 2 - weekDaySize / 2) | 0, this.canvas.height / 2 + (this.RADIUS / 8) * 3);
+        this.ctx.fillText(
+            weekDay,
+            (this.canvas.width / 2 - weekDaySize / 2) | 0,
+            this.canvas.height / 2 + (this.RADIUS / 8) * 3
+        );
 
         this.ctx.restore();
     }

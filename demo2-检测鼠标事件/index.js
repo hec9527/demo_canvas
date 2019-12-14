@@ -1,6 +1,22 @@
 class CanvasEvent {
     constructor() {
-        this.canvas = document.getElementById('canvas') || newCanvas();
+        this.canvas =
+            document.getElementById('canvas') ||
+            function() {
+                const el = document.createElement('canvas');
+                el.style.width = '800px';
+                el.style.height = '450px';
+                el.style.position = 'absolute';
+                el.style.margin = 'auto';
+                el.style.top = 0;
+                el.style.bottom = 0;
+                el.style.left = 0;
+                el.style.right = 0;
+                el.width = 800;
+                el.height = 450;
+                el.style.background = 'rgba(0, 0, 0, 0.3';
+                return el;
+            };
         this.context = this.canvas.getContext('2d');
         this.etype = '';
         this.x = 0;
@@ -39,18 +55,6 @@ class CanvasEvent {
         this.etype = etype;
         this.x = e.layerX;
         this.y = e.layerY;
-    }
-
-    newCanvas() {
-        const el = document.createElement('canvas');
-        el.style.width = '800px';
-        el.style.height = '450px';
-        el.style.background = '#ccc';
-        el.style.background = 'rgba(255, 255, 255, 0.3)';
-        el.width = 800;
-        el.height = 450;
-        document.getElementsByTagName('body')[0].appendChild(el);
-        return el;
     }
 
     drawLine() {
