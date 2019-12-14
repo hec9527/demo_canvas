@@ -36,7 +36,7 @@ class DrawClock {
         el.height = 450;
         el.style.width = 800 + 'px';
         el.style.height = 450 + 'px';
-        // el.style.background = '#ccc';
+        el.style.background = 'rgba(0, 0, 0, 0.3)';
         document.getElementsByTagName('body')[0].appendChild(el);
         return el;
     }
