@@ -12,15 +12,15 @@ class DrawClock {
         this.NUMBER_RADIUS = this.RADIUS + this.NUMBER_SPACING; // 绘制数字的半径
         this.POINTERS = {
             hour: {
-                length: this.RADIUS / 2,
+                length: (this.RADIUS / 9) * 4,
                 width: 4
             },
             minute: {
-                length: (this.RADIUS / 5) * 3,
+                length: (this.RADIUS / 3) * 2,
                 width: 2
             },
             seconds: {
-                length: (this.RADIUS / 3) * 2,
+                length: (this.RADIUS / 9) * 7,
                 width: 1
             }
         };
@@ -146,11 +146,16 @@ class DrawClock {
         this.ctx.fillText(hour, (this.canvas.width / 2 - hourSize.width / 2) | 0, this.canvas.height / 2 - (this.RADIUS / 9) * 2);
 
         this.ctx.font = 15 + 'px Arial';
-        const weekDay = `星期${date.getDay()}`;
+        const weekDay = `星期${this.mapWeekDay(date.getDay())}`;
         const weekDaySize = this.ctx.measureText(weekDay).width;
         this.ctx.fillText(weekDay, (this.canvas.width / 2 - weekDaySize / 2) | 0, this.canvas.height / 2 + (this.RADIUS / 8) * 3);
 
         this.ctx.restore();
+    }
+
+    mapWeekDay(num) {
+        const days = ['日', '一', '二', '三', '四', '五', '六'];
+        return days[num];
     }
 
     draw() {

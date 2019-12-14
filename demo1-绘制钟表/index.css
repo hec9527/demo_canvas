@@ -21,7 +21,8 @@ body {
     bottom: 0;
     right: 0;
     left: 0;
-    /* background: #ccc; */
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
 }
 
 body {
