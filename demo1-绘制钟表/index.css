@@ -23,3 +23,9 @@ body {
     left: 0;
     /* background: #ccc; */
 }
+
+body {
+    background: url(../bilibili.jpg);
+    background-size: cover;
+    background-position: center;
+}

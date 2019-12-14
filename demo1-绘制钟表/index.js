@@ -25,6 +25,8 @@ class DrawClock {
             }
         };
         this.ctx.font = this.FONT_HEIGHT + 'px Arial';
+        this.ctx.fillStyle = '#fff';
+        this.ctx.strokeStyle = '#fff';
     }
 
     newCanvas() {
@@ -34,7 +36,7 @@ class DrawClock {
         el.height = 450;
         el.style.width = 800 + 'px';
         el.style.height = 450 + 'px';
-        el.style.background = '#ccc';
+        // el.style.background = '#ccc';
         document.getElementsByTagName('body')[0].appendChild(el);
         return el;
     }
