@@ -40,8 +40,11 @@ export default class FileHandler {
     }
 
     // ------------------------    功能方法区     ------------------------
-    static ss() {
-        //
+    // 加载文件之后调用，如果已经加载图片文件则切换到编辑界面
+    static changeSection() {
+        const sections = document.getElementsByClassName('section');
+        sections[0].classList.add('hide');
+        sections[1].classList.remove('hide');
     }
 }
 
