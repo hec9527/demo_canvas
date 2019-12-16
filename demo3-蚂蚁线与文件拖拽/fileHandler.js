@@ -9,8 +9,8 @@
  *   3. 相较于第一版的内容来说，这一版的蚂蚁线使用canvas绘制不在使用HTML元素实现
  */
 
-import { FileClick } from './fileUploaderClick';
-import { fileDrag } from './fileUploaderDrager';
+import FileClick from './fileUploaderClick';
+import fileDrag from './fileUploaderDrager';
 
 export default class FileHandler {
     constructor(elID = 'myCanvas') {
