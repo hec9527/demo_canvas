@@ -1,7 +1,7 @@
 /**
  * @author    hec9527
  * @time      2019-12-16
- * @change    2019-12-16
+ * @change    2019-12-17
  * @description
  *
  *   1, canvas截图并且保存到本地
@@ -29,12 +29,29 @@ class CanvasSnap {
 
         // 事件监听
         this.btnBlob.onclick = e => {
-            // 点击
+            // void canvas.toBlob(callback, mimeType, quality);
+            this.canvas.toBlob(
+                blob => {
+                    const el = document.createElement('img');
+                    el.classList.add('img');
+                    el.src = blob;
+                    document.getElementsByTagName('body')[0].appendChild(el);
+                },
+                'image/png',
+                1
+            );
         };
 
         this.btnToDataURL.onclick = e => {
             // 点击
         };
+
+        // 消除
+        Array.prototype.forEach.call(document.getElementsByClassName('img'), item => {
+            item.onclick = function(e) {
+                document.removeChild(this);
+            };
+        });
     }
 
     DrawImage() {
