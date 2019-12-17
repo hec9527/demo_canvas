@@ -30,12 +30,18 @@ class CanvasSnap {
         // 事件监听
         this.btnBlob.onclick = e => {
             // void canvas.toBlob(callback, mimeType, quality);
+            // 毁掉函数中一个参数 blob ，包含图片的数据，需要使用 URL.createObjectURL方法转换
             this.canvas.toBlob(
+                //  URL.revokeObjectURL      释放资源
+                //  URL.createObjectURL(blob);   缓存资源并且提供短链接
                 blob => {
                     const el = document.createElement('img');
                     el.classList.add('img');
-                    el.src = blob;
+                    el.src = URL.createObjectURL(blob);
                     document.getElementsByTagName('body')[0].appendChild(el);
+                    el.onclick = function() {
+                        document.removeChild(this);
+                    };
                 },
                 'image/png',
                 1
@@ -45,13 +51,6 @@ class CanvasSnap {
         this.btnToDataURL.onclick = e => {
             // 点击
         };
-
-        // 消除
-        Array.prototype.forEach.call(document.getElementsByClassName('img'), item => {
-            item.onclick = function(e) {
-                document.removeChild(this);
-            };
-        });
     }
 
     DrawImage() {

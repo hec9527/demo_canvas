@@ -58,6 +58,7 @@ class DrawClock {
             Math.PI * 2,
             true
         );
+        this.ctx.closePath();
         this.ctx.stroke();
         this.ctx.restore();
     }
@@ -66,16 +67,17 @@ class DrawClock {
     drawTags() {
         // 只要是非连续路径绘制，都要记得都要执行一句context.beginPath()
         // 然后使用context.endPath() 结束路径
+        // 否则会以最后一次的绘制样式为准
         this.ctx.save();
         for (let i = 0; i < 60; i++) {
             this.ctx.beginPath();
+            this.ctx.lineWidth = 1;
+
             const angle = (Math.PI / 30) * i;
             let lineLength = 10;
 
-            this.ctx.lineWidth = 1;
-
             if (i % 15 === 0) {
-                // 0 3 6 9 小时出绘制粗长的直线
+                // 3 6 9  12小时绘制粗长的直线
                 this.ctx.lineWidth = 5;
                 lineLength = 20;
             } else if (i % 5 === 0) {
@@ -126,6 +128,7 @@ class DrawClock {
             Math.PI * 2,
             true
         );
+        this.ctx.closePath();
         this.ctx.fill();
     }
 
