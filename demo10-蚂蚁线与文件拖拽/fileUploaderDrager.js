@@ -10,7 +10,7 @@
  *     采用回掉机制
  */
 
-export default class FileDrager {
+class FileDrager {
     constructor(callback) {
         const el = document.getElementsByClassName('uploader')[0];
 

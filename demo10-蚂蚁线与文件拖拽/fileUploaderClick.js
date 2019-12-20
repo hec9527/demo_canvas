@@ -7,7 +7,7 @@
  *      文件异步读取机制
  */
 
-export default class FileClick {
+class FileClick {
     constructor(callback, elID = 'fileReader') {
         document.getElementById(elID).addEventListener(
             'change',
