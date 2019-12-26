@@ -1,0 +1,22 @@
+* {
+    padding: 0;
+    margin: 0;
+    bottom: 0;
+    list-style: none;
+    outline: none;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    background: url(../bilibili.jpg);
+    background-size: cover;
+    background-position: center;
+}
+
+#myCanvas {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.4);
+}
