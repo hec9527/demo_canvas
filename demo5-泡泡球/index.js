@@ -1,4 +1,17 @@
 /**
+ * @author     hec9527
+ * @time       2019-12-25
+ * @change     2019-12-26
+ * @description
+ *     1, demo 包含大量元素动画
+ *     2，如何使用面向对象的方式绘制出来
+ *     3，新能调优，高性能展示
+ *     4，速度计算，像素/S --->  像素/帧
+ *     5，绘制的元素的事件
+ *
+ */
+
+/**
  * 泡泡类
  */
 class Bubble {
@@ -73,14 +86,14 @@ class World {
         this.ctx = this.canvas.getContext('2d');
         this.canvas.width = this.canvas.offsetWidth;
         this.canvas.height = this.canvas.offsetHeight;
-        this.items = []; // 存放所有实体
+        this.items = [];
         this.mousePos = { x: -1000, y: -1000 };
         this.bubbleNum = 1000;
 
         // 添加事件监听
         window.addEventListener(
             'resize',
-            e => {
+            () => {
                 this.canvas.width = this.canvas.offsetWidth;
                 this.canvas.height = this.canvas.offsetHeight;
             },
