@@ -46,7 +46,7 @@ class Bubble {
     }
 
     getRandomRadius() {
-        return ((Math.random() * 5) | 0) + 5;
+        return ((Math.random() * 5) | 0) + 3;
     }
 
     update() {
