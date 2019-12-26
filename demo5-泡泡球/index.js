@@ -67,7 +67,7 @@ class Bubble {
     }
 }
 
-class Word {
+class World {
     constructor() {
         this.canvas = document.getElementById('myCanvas');
         this.ctx = this.canvas.getContext('2d');
@@ -117,4 +117,4 @@ class Word {
     }
 }
 
-const word = new Word();
+const world = new World();
