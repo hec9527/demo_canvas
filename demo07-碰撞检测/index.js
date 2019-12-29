@@ -59,29 +59,18 @@ class Ball {
     }
 
     getRandomColor() {
-        const colors = ['#ff7473', '#ffc952', '#47b8e0', '#34314c', '#30A9DE'];
-        return colors[(Math.random() * colors.length) | 0];
-    }
-
-    getRandomPosX() {
-        return Math.random() * (this.world.width - this.radius * 2) + this.radius;
-    }
-
-    getRandomPosY() {
-        return Math.random() * (this.world.height - this.radius * 2) + this.radius;
+        return this.world.colors[(Math.random() * this.world.colors.length) | 0];
     }
 
     getRandomPos() {
-        this.x = this.getRandomPosX();
-        this.y = this.getRandomPosY();
+        this.x = Math.random() * (this.world.width - this.radius * 2) + this.radius;
+        this.y = Math.random() * (this.world.height - this.radius * 2) + this.radius;
 
-        this.world.items.some(item => {
-            if (this !== item && this.isOverlap(item)) {
+        for (let i = 0, len = this.world.items.length; i < len; i++) {
+            if (this !== this.world.items[i] && this.isOverlap(this.world.items[i])) {
                 return this.getRandomPos();
             }
-        });
-
-        return true;
+        }
     }
 
     getDistence(ball) {
@@ -235,6 +224,7 @@ class World {
         this.items = [];
         this.width = this.canvas.width = this.canvas.offsetWidth;
         this.height = this.canvas.height = this.canvas.offsetHeight;
+        this.colors = ['#ff7473', '#ffc952', '#47b8e0', '#34314c', '#30A9DE'];
         this.ballNum = 200;
 
         for (let i = 0; i < this.ballNum; i++) {
