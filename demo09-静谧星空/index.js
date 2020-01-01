@@ -5,14 +5,63 @@ class StarStar {
     constructor(word) {
         this.word = word;
         this.word.items.push(this);
+
+        this.x = this.getRandomPosX();
+        this.y = this.getRandomPosY();
+        this.raduis = this.getRandomRadius();
+        this.opacity = this.getOpacity();
+        this.minOpacity = this.opacity / 10;
+        this.maxOpacity = 2 * this.opacity >= 1 ? 1 : 2 * this.opacity;
+        this.isBlink = true; // 是否亮度增加
+        this.blinkStep = this.getRandomBlinkStep();
+    }
+
+    getRandomBlinkStep() {
+        return Math.random() * 0.005 + 0.007;
+    }
+
+    getRandomPosX() {
+        return Math.random() * this.word.width;
+    }
+
+    getRandomPosY() {
+        return Math.random() * this.word.height;
+    }
+
+    getRandomRadius() {
+        return Math.random() * 0.7 + 0.5;
+    }
+
+    getOpacity() {
+        return 0.1 + (this.raduis / 1.2) * 0.5;
     }
 
     update() {
-        //
+        if (this.isBlink) {
+            if (this.opacity < this.maxOpacity) {
+                this.opacity += this.blinkStep;
+            } else {
+                this.isBlink = !this.isBlink;
+            }
+        } else {
+            if (this.opacity > this.minOpacity) {
+                this.opacity -= this.blinkStep;
+            } else {
+                this.isBlink = !this.isBlink;
+            }
+        }
     }
 
     render() {
-        //
+        const ctx = this.word.ctx;
+
+        ctx.beginPath();
+        // ctx.shadowColor = '#fff'; // 超级耗费性能
+        // ctx.shadowBlur = 3; // 超级耗费性能
+        ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+        ctx.arc(this.x, this.y, this.raduis, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.closePath();
     }
 }
 
@@ -24,22 +73,59 @@ class Meteor {
         this.word = word;
         this.word.items.push(this);
 
-        this.pos = { ...this.word.birthCenter };
+        this.pos = { x: -100, y: -100 };
         this.lastPos = { ...this.pos };
         this.speed = { x: 0, y: 0 };
-        this.maxSpeed = { x: 5, y: 5 };
         this.lineWidth = 1;
+        this.timer = null;
 
-        this.birth();
+        setTimeout(() => this.birth(), Math.random() * 3000);
     }
 
-    // 在世界的出生点中心附近出生
+    getRandomLineWidth() {
+        return Math.random() * 2 + 1;
+    }
+
+    getRandomPosX() {
+        return ((Math.random() * this.word.width) / 7) * 4;
+    }
+
+    getRandomPosY() {
+        return (Math.random() * this.word.height) / 5;
+    }
+
+    getRandomSpeed() {
+        return {
+            x: Math.random() * 2 + 6,
+            y: Math.random() * 2 + 6
+        };
+    }
+
+    // 新生成流星
     birth() {
-        //
+        this.timer = null;
+        this.pos.x = this.getRandomPosX();
+        this.pos.y = this.getRandomPosY();
+
+        this.lastPos = { ...this.pos };
+
+        this.speed = this.getRandomSpeed();
+        this.lineWidth = this.getRandomLineWidth();
     }
 
     update() {
-        //
+        this.lastPos = { ...this.pos };
+
+        this.pos.x += this.speed.x;
+        this.pos.y += this.speed.y;
+
+        // 新生
+        if (
+            (this.pos.x > this.word.width * 2 || this.pos.y > this.word.height * 2) &&
+            !this.timer
+        ) {
+            this.timer = setTimeout(() => this.birth(), Math.random() * 4000 + 1000);
+        }
     }
 
     render() {
@@ -64,8 +150,8 @@ class Word {
         this.width = this.canvas.width = this.canvas.offsetWidth;
         this.height = this.canvas.height = this.canvas.offsetHeight;
         this.items = [];
-        this.meteorNum = 5;
-        this.starNum = 300;
+        this.meteorNum = 3;
+        this.starNum = 500;
         this.clicked = false;
 
         // 注册事件
@@ -88,7 +174,7 @@ class Word {
     }
 
     render() {
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.items.forEach(item => {
