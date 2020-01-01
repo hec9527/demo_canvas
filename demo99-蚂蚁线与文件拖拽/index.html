@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <link rel="stylesheet" href="./font-awesome-4.7.0/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="index.css" />
+        <title>文件拖拽与图片剪切</title>
+    </head>
+
+    <body>
+        <!-- 
+                本demo涉及内容：
+                    1.文件的点击上传
+                    2.文件的拖拽上传
+                    3.文件的内容读取
+                    4.图片文件的剪切
+                    5.图片的缩放、旋转
+                    6.canvas绘图
+                    7.背景颜色交替（PS透明效果）
+                    8.canvas图片的截取
+                    9.canvas图片本地保存
+                -->
+
+        <section class="section uploader">
+            <input id="fileReader" class="hide" type="file" name="myFileReader" />
+            <label for="fileReader" class="fileReader-wraper">
+                <div class="uploader-cover">
+                    <i class="fa fa-cloud-upload uploader-icon" aria-hidden="true"></i>
+                    <br />
+                    <i>Drag or Click To Load File</i>
+                </div>
+            </label>
+        </section>
+
+        <section class="section editor hide">
+            <div class="editor-toolbar">
+                <div class="toolbar-title">工具栏</div>
+                <div class="toolbar-items reupload" title="打开文件">
+                    <i class="fa fa-folder-open"></i>
+                </div>
+                <div class="toolbar-items select" title="选区">
+                    <i class="fa fa-square-o"></i>
+                </div>
+                <div class="toolbar-items submit" title="提交">
+                    <i class="fa fa-check"></i>
+                </div>
+                <div class="toolbar-items info" title="详情">
+                    <i class="fa fa-info"></i>
+                </div>
+                <div class="toolbar-items refresh" title="重置">
+                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                </div>
+            </div>
+            <canvas id="myCanvas" class="myCanvas"></canvas>
+        </section>
+
+        <!-- 第二版改版内容 -->
+        <script src="./fileHandler.js"></script>
+    </body>
+</html>
