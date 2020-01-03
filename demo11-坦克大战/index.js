@@ -16,6 +16,7 @@
 class KeyBorad {
     constructor(word) {
         this.word = word;
+        this.word.keyBorad = this;
         this.BLOCK = this.word.game.KEYBORAD_BLOCK = false;
 
         // ! TODO 双线发展，后期测试 key 和 keyCode 究竟那个更加方便合适
@@ -33,7 +34,7 @@ class KeyBorad {
         // 键盘  -- 抬起
         window.addEventListener('keyup', e => {
             this.keyCode.delete(e.keyCode);
-            this.key.delete(e.key);
+            this.keys.delete(e.key);
         });
     }
 
@@ -58,6 +59,49 @@ class KeyBorad {
 class Image {
     constructor(word) {
         this.word = word;
+        this.word.image = this;
+    }
+}
+
+/**
+ * 玩家类
+ */
+class Player {
+    constructor(word) {
+        this.word = word;
+        this.PLAYER_LIST = this.word.game.PLAYER_LIST || [];
+        this.PLAYER_LIST.push(this);
+
+        this.index = this.PLAYER_LIST.length;
+        this.life = 3;
+        this.tank = {}; // 玩家的坦克
+        this.scope = 0; // 玩家分数
+        this.scopeAward = 0; // 分数奖励次数
+    }
+
+    addLife() {
+        this.life += 1;
+    }
+
+    addScope(scope) {
+        this.scope += scope;
+    }
+
+    steal() {
+        const index = this.index === 0 ? 1 : 0;
+        console.info(`steal: 玩家${index}  --->  玩家${this.index}`);
+        if (this.life === 0 && this.PLAYER_LIST[index] && this.PLAYER_LIST[index].life >= 2) {
+            this.life += 1;
+            this.PLAYER_LIST[index].life -= 1;
+        }
+    }
+
+    brith() {
+        console.info(`player${this.index} new tank`);
+        if (this.life >= 1) {
+            this.life -= 1;
+            this.tank = new Tank();
+        }
     }
 }
 
@@ -68,11 +112,27 @@ class Image {
 class Game {
     constructor(word) {
         this.word = word;
+        this.word.game = this;
 
         // 键盘锁定
         this.KEYBORAD_BLOCK = false;
+        // 玩家数量
+        this.PLAYER_NUMS = 1;
+        // 玩家列表 存放玩家对象
+        this.PLAYER_LIST = [new Player(word)];
+        // 游戏当前关卡
+        this.GAME_RANK = 1;
+    }
+
+    reset() {
+        new Game(this.word);
     }
 }
+
+/**
+ * 坦克类
+ */
+class Tank {}
 
 /**
  * 世界类
@@ -91,6 +151,7 @@ class Word {
         this.items = [];
 
         // 世界其它属性
+        this.game = new Game(this);
         this.keyBorad = new KeyBorad(this);
     }
 }
