@@ -54,6 +54,61 @@ class KeyBorad {
     }
 }
 
+class Sound {
+    constructor(word) {
+        console.info('info: load Sound');
+
+        this.word = word;
+        this.word.sound = this;
+
+        this.loaded = false;
+        this.sound = {};
+
+        this.loadSound();
+    }
+
+    loadSound() {
+        const music = this.word.game.config.sound;
+        const pwd = this.word.pwd;
+        const sound = this.sound;
+
+        Promise.allSettled(
+            (() => {
+                return Reflect.ownKeys(music).map(item => {
+                    return new Promise((resolve, reject) => {
+                        const player = new Audio();
+                        let load = false;
+
+                        setTimeout(() => {
+                            if (!load) {
+                                console.warn(`warn: 音频加载失败 ${pwd + music[item]}`);
+                                reject();
+                            }
+                        }, 5000);
+                        player.oncanplay = () => {
+                            Reflect.defineProperty(sound, item, { value: player });
+                            load = true;
+                            resolve();
+                        };
+                        player.src = pwd + music[item];
+                    });
+                });
+            })()
+        ).then(() => {
+            this.loadSound = true;
+            console.info('info: 音频加载完成');
+        });
+    }
+
+    play(sound) {
+        if (Reflect.ownKeys(this.sound).includes(sound)) {
+            this.sound[sound].play();
+        } else {
+            console.warn('warn: 未注册的音频文件');
+        }
+    }
+}
+
 /**
  * 图片加载类
  * 负责加载并且处理图像
@@ -201,13 +256,20 @@ class Word {
         this.ctx = this.canvas.getContext('2d');
         this.width = this.canvas.width = this.canvas.offsetWidth;
         this.height = this.canvas.height = this.canvas.offsetHeight;
+        this.pwd = this.getPwd();
 
         // 世界元素属性
         this.items = new Set();
 
         // 世界其它属性
         this.game = new Game(this);
+        this.sound = new Sound(this);
         this.keyBorad = new KeyBorad(this);
+    }
+
+    getPwd() {
+        const href = window.location.href;
+        return href.slice(0, href.lastIndexOf('/'));
     }
 }
 
