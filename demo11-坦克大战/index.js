@@ -130,6 +130,33 @@ class Game {
 }
 
 /**
+ * 实体类
+ * 所有现实在游戏画面上的所有实体的父类
+ */
+class Entity {
+    constructor(word, image, pos) {
+        this.word = word;
+        this.word.items.add(this);
+
+        this.image = image;
+        this.birthPos = pos;
+        this.pos = pos;
+    }
+
+    die() {
+        this.word.items.delete(this);
+    }
+
+    update() {
+        return new Error('每个实体对象应该有自己的<update>方法');
+    }
+
+    render() {
+        return new Error('每个实体对象应该有自己的<render>方法');
+    }
+}
+
+/**
  * 坦克类
  */
 class Tank extends Entity {
