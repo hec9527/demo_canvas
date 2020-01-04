@@ -54,6 +54,10 @@ class KeyBorad {
     }
 }
 
+/**
+ * 音频类
+ * 负责游戏中的各种音效
+ */
 class Sound {
     constructor(word) {
         console.info('info: load Sound');
@@ -64,14 +68,15 @@ class Sound {
         this.loaded = false;
         this.sound = {};
 
-        this.loadSound();
+        this.load();
     }
 
-    loadSound() {
+    load() {
         const music = this.word.game.config.sound;
         const pwd = this.word.pwd;
         const sound = this.sound;
 
+        // ES2020
         Promise.allSettled(
             (() => {
                 return Reflect.ownKeys(music).map(item => {
@@ -113,11 +118,49 @@ class Sound {
  * 图片加载类
  * 负责加载并且处理图像
  */
-class Image {
+class Images {
     constructor(word) {
         console.info('info: load image');
         this.word = word;
         this.word.image = this;
+
+        this.loaded = false;
+        this.images = {};
+
+        this.load();
+    }
+
+    load() {
+        const images = this.word.game.config.image;
+        const pwd = this.word.pwd;
+        const resource = this.images;
+
+        Promise.allSettled(
+            (() => {
+                return Reflect.ownKeys(images).map(item => {
+                    return new Promise((resolve, reject) => {
+                        const img = new Image();
+                        let load = false;
+
+                        setTimeout(() => {
+                            if (!load) {
+                                console.warn(`warn: 图片加载出错 ${pwd + images[item]}`);
+                                reject();
+                            }
+                        }, 5000);
+                        img.onload = () => {
+                            load = true;
+                            Reflect.defineProperty(resource, item, { value: img });
+                            resolve();
+                        };
+                        img.src = pwd + images[item];
+                    });
+                });
+            })()
+        ).then(() => {
+            this.loaded = true;
+            console.info('info: 图片加载完成');
+        });
     }
 }
 
@@ -264,6 +307,7 @@ class Word {
         // 世界其它属性
         this.game = new Game(this);
         this.sound = new Sound(this);
+        this.images = new Images(this);
         this.keyBorad = new KeyBorad(this);
     }
 
