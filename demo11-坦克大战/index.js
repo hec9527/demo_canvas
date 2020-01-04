@@ -258,7 +258,7 @@ class Windows {}
  * 所有现实在游戏画面上的所有实体的父类
  */
 class Entity {
-    constructor(word, image, pos) {
+    constructor(word, image, clip, pos) {
         console.info('info: new entity');
 
         this.word = word;
