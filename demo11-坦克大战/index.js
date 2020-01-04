@@ -267,6 +267,7 @@ class Entity {
         this.image = image;
         this.birthPos = pos;
         this.pos = pos;
+        this.clip = clip;
     }
 
     die() {
