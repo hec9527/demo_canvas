@@ -132,7 +132,11 @@ class Game {
 /**
  * 坦克类
  */
-class Tank {}
+class Tank extends Entity {
+    constructor(word, image, pos) {
+        super(word, image, word);
+    }
+}
 
 /**
  * 世界类
