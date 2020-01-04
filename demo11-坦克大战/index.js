@@ -15,6 +15,8 @@
  */
 class KeyBorad {
     constructor(word) {
+        console.info('info: init keyborad');
+
         this.word = word;
         this.word.keyBorad = this;
         this.BLOCK = this.word.game.KEYBORAD_BLOCK = false;
@@ -58,6 +60,7 @@ class KeyBorad {
  */
 class Image {
     constructor(word) {
+        console.info('info: load image');
         this.word = word;
         this.word.image = this;
     }
@@ -68,6 +71,8 @@ class Image {
  */
 class Player {
     constructor(word) {
+        console.info('info: new player');
+
         this.word = word;
         this.PLAYER_LIST = this.word.game.PLAYER_LIST || [];
         this.PLAYER_LIST.push(this);
@@ -111,6 +116,8 @@ class Player {
  */
 class Game {
     constructor(word) {
+        console.info('info: init game');
+
         this.word = word;
         this.word.game = this;
 
@@ -148,6 +155,8 @@ class Game {
  */
 class Entity {
     constructor(word, image, pos) {
+        console.info('info: new entity');
+
         this.word = word;
         this.word.items.add(this);
 
@@ -185,6 +194,8 @@ class Tank extends Entity {
  */
 class Word {
     constructor() {
+        console.info('info: init word');
+
         // 世界基础属性
         this.canvas = document.getElementById('canvas');
         this.ctx = this.canvas.getContext('2d');
