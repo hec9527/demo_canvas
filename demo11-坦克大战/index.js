@@ -148,7 +148,7 @@ class Word {
         this.height = this.canvas.height = this.canvas.offsetHeight;
 
         // 世界元素属性
-        this.items = [];
+        this.items = new Set();
 
         // 世界其它属性
         this.game = new Game(this);
