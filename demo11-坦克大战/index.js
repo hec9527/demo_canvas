@@ -96,7 +96,7 @@ class Player {
         }
     }
 
-    brith() {
+    birth() {
         console.info(`player${this.index} new tank`);
         if (this.life >= 1) {
             this.life -= 1;
