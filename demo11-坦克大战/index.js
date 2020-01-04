@@ -128,7 +128,7 @@ class Game {
         // 玩家数量
         this.PLAYER_NUMS = 1;
         // 玩家列表 存放玩家对象
-        this.PLAYER_LIST = [new Player(word)];
+        this.PLAYER_LIST = [];
         // 游戏当前关卡
         this.GAME_RANK = 1;
     }
