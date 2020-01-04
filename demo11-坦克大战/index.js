@@ -114,6 +114,8 @@ class Game {
         this.word = word;
         this.word.game = this;
 
+        // 配置文件
+        this.config = this.loadConfig();
         // 键盘锁定
         this.KEYBORAD_BLOCK = false;
         // 玩家数量
@@ -122,6 +124,17 @@ class Game {
         this.PLAYER_LIST = [new Player(word)];
         // 游戏当前关卡
         this.GAME_RANK = 1;
+    }
+
+    loadConfig() {
+        if (window.config) {
+            console.info('info: load config');
+            const config = window.config;
+            Reflect.deleteProperty(window, config);
+            return config;
+        } else {
+            setTimeout(() => this.loadConfig(), 10);
+        }
     }
 
     reset() {
