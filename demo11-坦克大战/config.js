@@ -9,7 +9,7 @@
  */
 
 //  暂时存放在全局对象上面，等游戏加载后，读取到闭包中然后删除这个属性，防止外部注入
-window.confirm = {
+window.config = {
     image: {},
     sound: {}
 };
