@@ -1,7 +1,7 @@
 /**
  * @author     hec9527
  * @time       2020-1-3
- * @change     2020-1-3
+ * @change     2020-1-4
  * @description
  *
  *      1, 自由软件协议
@@ -287,8 +287,19 @@ class Entity {
  * 坦克类
  */
 class Tank extends Entity {
-    constructor(word, image, pos) {
-        super(word, image, word);
+    constructor(word, image, pos, clip) {
+        super(word, image, pos, clip);
+
+        this.life = 1;
+        this.level = 1;
+        this.direction = undefined;
+        this.bulletNum = 1;
+        this.bullets = [];
+        this.speed = 16;
+    }
+
+    changeIcon() {
+        //
     }
 }
 
