@@ -160,6 +160,7 @@ class Images {
         ).then(() => {
             this.loaded = true;
             console.info('info: 图片加载完成');
+            new Tank(this.word, this.images.myTank, { x: 5, y: 5 }, { x: 0, y: 0 });
         });
     }
 }
@@ -203,7 +204,7 @@ class Player {
         console.info(`player${this.index} new tank`);
         if (this.life >= 1) {
             this.life -= 1;
-            this.tank = new Tank();
+            // this.tank = new Tank();
         }
     }
 }
@@ -268,6 +269,8 @@ class Entity {
         this.birthPos = pos;
         this.pos = pos;
         this.clip = clip;
+        this.alternative = { x: this.clip.x, y: this.clip.y + 1 };
+        this.tick = 1;
     }
 
     die() {
@@ -275,11 +278,23 @@ class Entity {
     }
 
     update() {
-        return new Error('每个实体对象应该有自己的<update>方法');
+        throw new Error('每个实体对象应该实现自己的<update>方法');
     }
 
     render() {
-        return new Error('每个实体对象应该有自己的<render>方法');
+        const ctx = this.word.ctx;
+
+        ctx.drawImage(
+            this.image,
+            this.clip.x * 32,
+            this.clip.y * 32,
+            32,
+            32,
+            this.pos.x * 32,
+            this.pos.y * 32,
+            32,
+            32
+        );
     }
 }
 
@@ -301,6 +316,8 @@ class Tank extends Entity {
     changeIcon() {
         //
     }
+
+    // update() {}
 }
 
 /**
@@ -327,11 +344,26 @@ class Word {
         this.sound = new Sound(this);
         this.images = new Images(this);
         this.keyBorad = new KeyBorad(this);
+
+        // 调用自身方法
+        this.render();
     }
 
     getPwd() {
         const href = window.location.href;
         return href.slice(0, href.lastIndexOf('/'));
+    }
+
+    render() {
+        this.ctx.fillStyle = '#000';
+        this.ctx.fillRect(0, 0, this.width, this.height);
+
+        this.items.forEach(item => {
+            item.update();
+            item.render();
+        });
+
+        window.requestAnimationFrame(() => this.render());
     }
 }
 
