@@ -197,7 +197,6 @@ class Images {
         ).then(() => {
             this.word.printer.info('图片加载完成');
             this.loaded = true;
-            new Tank(this.word, this.images.myTank, { x: 5, y: 5 }, { x: 0, y: 0 });
         });
     }
 }
@@ -292,16 +291,42 @@ class Windows {}
  * 所有现实在游戏画面上的所有实体的父类
  */
 class Entity {
-    constructor(word, image, clip, pos) {
+    constructor(word, image, pos, clip) {
         this.word = word;
         this.word.items.add(this);
 
+        // 实体的游戏属性
         this.image = image;
         this.birthPos = pos;
-        this.pos = pos;
-        this.clip = clip;
-        this.alternative = { x: this.clip.x, y: this.clip.y + 1 };
-        this.tick = 0;
+        this.pos = pos; // 实体的实际位置
+        this.clip = clip; // 实体在精灵图中的剪切位置
+        this.icon = this.clip; // 当前展示的icon
+        this.tick = 0; // 计数器
+        this.direction = 'top'; // 实体默认都朝上
+        this.speed = 0; // 默认实体移速为0
+        this.width = 32; // 宽高
+        this.collision = true; // 是否参与碰撞检测
+    }
+
+    setDirection(dir) {
+        this.direction = dir;
+        this.setClip(dir, option);
+    }
+
+    setClip(dir, option) {}
+
+    move(dir) {
+        if (this.dir !== dir) {
+            return this.setDirection(dir);
+        } else {
+            const dirs = {
+                top: () => (this.pos.y -= this.speed),
+                left: () => (this.pos.x -= this.speed),
+                bottom: () => (this.pos.y += this.speed),
+                right: () => (this.pos.x += this.speed)
+            };
+            dirs(dir);
+        }
     }
 
     die() {
@@ -317,8 +342,8 @@ class Entity {
 
         ctx.drawImage(
             this.image,
-            this.clip.x * 32,
-            this.clip.y * 32,
+            this.icon.x * 32,
+            this.icon.y * 32,
             32,
             32,
             this.pos.x * 32,
@@ -336,20 +361,97 @@ class Tank extends Entity {
     constructor(word, image, pos, clip) {
         super(word, image, pos, clip);
 
+        // 所有坦克应该新增的属性以及方法
         this.life = 1;
         this.level = 1;
-        this.direction = undefined;
+        this.camp = undefined; // 坦克的阵营
         this.bulletNum = 1;
-        this.bullets = [];
-        this.speed = 16;
-        this.tick = 0;
+        this.bullets = new Set(); // 弹夹
+        this.speed = 16; // 所有坦克的默认速度，不同坦克可以覆盖这个默认值
     }
 
-    changeIcon() {
-        //
+    shoot() {
+        if (this.bullets.size < this.bulletNum) {
+            return new Bullet(this);
+        }
     }
-
     update() {}
+}
+
+/**
+ * 子弹类
+ */
+class Bullet extends Entity {
+    constructor(tank) {
+        super(tank.word, tank.word.image.images.tool, tank.pos, { x: 1, y: 0 });
+        this.tank = tank;
+        this.word = this.tank.word;
+
+        // 添加到实体列表
+        this.word.items.add(this);
+        this.tank.bullets.add(this);
+
+        // 子弹的游戏属性
+        this.pos = this.getPos(tank.pos);
+        this.speed = this.tank.bulletSpeed || 5;
+        this.direction = this.tank.direction;
+        this.direction = 'right';
+        this.width = 8;
+    }
+
+    getPos(pos) {
+        // 右侧
+        return { x: pos.x * 32 + 24, y: pos.y * 32 + 12 };
+    }
+
+    move() {
+        const dirs = {
+            top: () => (this.pos.y -= this.speed),
+            left: () => (this.pos.x -= this.speed),
+            bottom: () => (this.pos.y += this.speed),
+            right: () => (this.pos.x += this.speed)
+        };
+        dirs[this.direction]();
+        this.collisionDetection();
+    }
+
+    collisionDetection() {
+        if (
+            this.pos.x + 8 > this.word.width ||
+            this.pos.x < 0 ||
+            this.pos.y + 8 > this.word.height ||
+            this.pos.y < 0
+        ) {
+            return this.die();
+        } else {
+            this.word.items.forEach(item => {
+                // 逐个检测
+            });
+        }
+    }
+
+    die() {
+        this.word.items.delete(this);
+        this.tank.bullets.delete(this);
+    }
+
+    update() {
+        this.move();
+    }
+
+    render() {
+        this.word.ctx.drawImage(
+            this.image,
+            this.clip.x * 8,
+            this.clip.y * 8,
+            8,
+            8,
+            this.pos.x,
+            this.pos.y,
+            8,
+            8
+        );
+    }
 }
 
 /**
@@ -391,6 +493,10 @@ class Word {
         } else {
             this.printer.copyright();
             this.render();
+
+            // !  测试数据
+            window.t = new Tank(word, this.images.images.myTank, { x: 0, y: 4 }, { x: 0, y: 3 });
+            t.shoot();
         }
     }
 
