@@ -55,8 +55,6 @@ class Print {
  */
 class KeyBorad {
     constructor(word) {
-        console.info('info: init keyborad');
-
         this.word = word;
         this.word.keyBorad = this;
         this.BLOCK = this.word.game.KEYBORAD_BLOCK = false;
@@ -100,8 +98,6 @@ class KeyBorad {
  */
 class Sound {
     constructor(word) {
-        console.info('info: load Sound');
-
         this.word = word;
         this.word.sound = this;
 
@@ -115,6 +111,7 @@ class Sound {
         const music = this.word.game.config.sound;
         const pwd = this.word.pwd;
         const sound = this.sound;
+        const printer = this.word.printer;
 
         // ES2020
         Promise.allSettled(
@@ -126,7 +123,7 @@ class Sound {
 
                         setTimeout(() => {
                             if (!load) {
-                                console.warn(`warn: 音频加载失败 ${pwd + music[item]}`);
+                                printer.warn(`音频加载失败 ${pwd + music[item]}`);
                                 reject();
                             }
                         }, 5000);
@@ -140,7 +137,7 @@ class Sound {
                 });
             })()
         ).then(() => {
-            console.info('info: 音频加载完成');
+            printer.info('音频加载完成');
             this.loaded = true;
         });
     }
@@ -149,7 +146,7 @@ class Sound {
         if (Reflect.ownKeys(this.sound).includes(sound)) {
             this.sound[sound].play();
         } else {
-            console.warn('warn: 未注册的音频文件');
+            this.word.printer.warn('未注册的音频文件');
         }
     }
 }
@@ -160,7 +157,6 @@ class Sound {
  */
 class Images {
     constructor(word) {
-        console.info('info: load image');
         this.word = word;
         this.word.image = this;
 
@@ -174,6 +170,7 @@ class Images {
         const images = this.word.game.config.image;
         const pwd = this.word.pwd;
         const resource = this.images;
+        const printer = this.word.printer;
 
         Promise.allSettled(
             (() => {
@@ -184,7 +181,7 @@ class Images {
 
                         setTimeout(() => {
                             if (!load) {
-                                console.warn(`warn: 图片加载出错 ${pwd + images[item]}`);
+                                printer.warn(`图片加载出错 ${pwd + images[item]}`);
                                 reject();
                             }
                         }, 5000);
@@ -198,7 +195,7 @@ class Images {
                 });
             })()
         ).then(() => {
-            console.info('info: 图片加载完成');
+            this.word.printer.info('图片加载完成');
             this.loaded = true;
             new Tank(this.word, this.images.myTank, { x: 5, y: 5 }, { x: 0, y: 0 });
         });
@@ -210,8 +207,6 @@ class Images {
  */
 class Player {
     constructor(word) {
-        console.info('info: new player');
-
         this.word = word;
         this.PLAYER_LIST = this.word.game.PLAYER_LIST || [];
         this.PLAYER_LIST.push(this);
@@ -233,7 +228,7 @@ class Player {
 
     steal() {
         const index = this.index === 0 ? 1 : 0;
-        console.info(`steal: 玩家${index}  --->  玩家${this.index}`);
+        this.word.printer.info(`steal: 玩家${index}  --->  玩家${this.index}`);
         if (this.life === 0 && this.PLAYER_LIST[index] && this.PLAYER_LIST[index].life >= 2) {
             this.life += 1;
             this.PLAYER_LIST[index].life -= 1;
@@ -241,7 +236,7 @@ class Player {
     }
 
     birth() {
-        console.info(`player${this.index} new tank`);
+        this.word.printer.info(`player${this.index} new tank`);
         if (this.life >= 1) {
             this.life -= 1;
             // this.tank = new Tank();
@@ -255,8 +250,6 @@ class Player {
  */
 class Game {
     constructor(word) {
-        console.info('info: init game');
-
         this.word = word;
         this.word.game = this;
 
@@ -274,7 +267,7 @@ class Game {
 
     loadConfig() {
         if (window.config) {
-            console.info('info: load config');
+            this.word.printer.info('load config');
             const config = window.config;
             Reflect.deleteProperty(window, config);
             return config;
@@ -300,8 +293,6 @@ class Windows {}
  */
 class Entity {
     constructor(word, image, clip, pos) {
-        console.info('info: new entity');
-
         this.word = word;
         this.word.items.add(this);
 
@@ -310,7 +301,7 @@ class Entity {
         this.pos = pos;
         this.clip = clip;
         this.alternative = { x: this.clip.x, y: this.clip.y + 1 };
-        this.tick = 1;
+        this.tick = 0;
     }
 
     die() {
@@ -351,13 +342,14 @@ class Tank extends Entity {
         this.bulletNum = 1;
         this.bullets = [];
         this.speed = 16;
+        this.tick = 0;
     }
 
     changeIcon() {
         //
     }
 
-    // update() {}
+    update() {}
 }
 
 /**
@@ -367,8 +359,6 @@ class Tank extends Entity {
  */
 class Word {
     constructor() {
-        console.info('info: init word');
-
         // 世界基础属性
         this.canvas = document.getElementById('canvas');
         this.ctx = this.canvas.getContext('2d');
@@ -396,8 +386,6 @@ class Word {
     }
 
     start() {
-        console.log(1);
-
         if (!this.images.loaded || !this.sound.loaded) {
             setTimeout(() => this.start(), 100);
         } else {
