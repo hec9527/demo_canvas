@@ -77,8 +77,17 @@
 }
 #copyRight {
     position: absolute;
-    bottom: 150px;
+    bottom: 50px;
     right: 45px;
     font-size: 10px;
     color: grey;
+}
+
+h3 {
+    -webkit-background-clip: text !important;
+    font-weight: 900;
+    background-clip: text;
+    padding: 30px;
+    color: transparent;
+    background: url(./image/text.png);
 }

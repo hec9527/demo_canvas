@@ -11,6 +11,46 @@
  */
 
 /**
+ * 工具类
+ * 输入到控制台
+ */
+class Print {
+    constructor(word) {
+        this.word = word;
+        this.word.printer = this;
+    }
+
+    debug(msg) {
+        console.debug(`%cdebug: ${msg}`, 'color:#58C9B9');
+    }
+
+    info(msg) {
+        console.info(`%cinfo: ${msg}`, 'color:#30A9DE');
+    }
+
+    warn(msg) {
+        console.warn(`%cwarn: ${msg}`, 'color:#f9c00c');
+    }
+
+    error(msg) {
+        console.error(`%cerror: ${msg}`, 'color:#E53A40');
+    }
+
+    copyright() {
+        console.clear();
+        console.log(
+            '%c ',
+            `background: url(${this.word.pwd}/image/UI.png);
+            padding:0px 184px; line-height:136px;margin: 15px calc(50% - 184px);`
+        );
+        console.log(
+            `%c@author: hec9527\n@time:   2020-1-5\n@description: \n\n\thi，你好。你能看到这条消息，多半也是程序员。无论是不是，请在程序中保留第一作者，虽然微不足道，但是修改作者署名，并且将其劳动成果据为己有是一种可耻且让人厌恶的行为，这是对开源社区的一种伤害。\n\t如果你在使用过程中发现有任何bug，或者优化建议，可以直接发送到我的邮箱:\thec9526@foxmail.com\n\n`,
+            'color:red'
+        );
+    }
+}
+
+/**
  * 键盘类
  */
 class KeyBorad {
@@ -100,8 +140,8 @@ class Sound {
                 });
             })()
         ).then(() => {
-            this.loadSound = true;
             console.info('info: 音频加载完成');
+            this.loaded = true;
         });
     }
 
@@ -158,8 +198,8 @@ class Images {
                 });
             })()
         ).then(() => {
-            this.loaded = true;
             console.info('info: 图片加载完成');
+            this.loaded = true;
             new Tank(this.word, this.images.myTank, { x: 5, y: 5 }, { x: 0, y: 0 });
         });
     }
@@ -340,18 +380,30 @@ class Word {
         this.items = new Set();
 
         // 世界其它属性
+        this.printer = new Print(this);
         this.game = new Game(this);
         this.sound = new Sound(this);
         this.images = new Images(this);
         this.keyBorad = new KeyBorad(this);
 
         // 调用自身方法
-        this.render();
+        this.start();
     }
 
     getPwd() {
         const href = window.location.href;
         return href.slice(0, href.lastIndexOf('/'));
+    }
+
+    start() {
+        console.log(1);
+
+        if (!this.images.loaded || !this.sound.loaded) {
+            setTimeout(() => this.start(), 100);
+        } else {
+            this.printer.copyright();
+            this.render();
+        }
     }
 
     render() {
