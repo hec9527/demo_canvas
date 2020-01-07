@@ -6,83 +6,68 @@ class Particles {
         this.word = word;
         this.word.items.push(this);
 
-        this.x = this.word.click ? this.word.mouse.x : this.getRandomX();
-        this.y = this.word.click ? this.word.mouse.y : this.getRandomY();
-        this.radius = this.getRandomRadius();
+        this.x = this.word.click ? this.word.mouse.x : Math.random() * this.word.width;
+        this.y = this.word.click ? this.word.mouse.y : Math.random() * this.word.height;
+        this.radius = Math.random() * 2 + 1.5;
         this.speed = this.getRandomSpeed();
 
         this.distence = this.word.config.linkDistence;
     }
 
-    getRandomX() {
-        return Math.random() * this.word.width;
-    }
-
-    getRandomY() {
-        return Math.random() * this.word.height;
-    }
-
-    getRandomRadius() {
-        return Math.random() * 2 + 1.5;
-    }
-
     getRandomSpeed() {
         return {
-            x: Math.random() > 0.5 ? Math.random() * 1 + 0.5 : -(Math.random() * 1 + 0.5),
-            y: Math.random() > 0.5 ? Math.random() * 1 + 0.5 : -(Math.random() * 1 + 0.5)
+            x: Math.random() > 0.5 ? Math.random() * 1 + 0.5 : -(Math.random() * 1 + 0.1),
+            y: Math.random() > 0.5 ? Math.random() * 1 + 0.5 : -(Math.random() * 1 + 0.1)
         };
     }
 
-    checkBorder() {
+    getDistence(p) {
+        return Math.sqrt((this.x - p.x) ** 2 + (this.y - p.y) ** 2);
+    }
+
+    lineTo(particles, perc) {
+        this.word.ctx.beginPath();
+        this.word.ctx.moveTo(this.x, this.y);
+        this.word.ctx.lineTo(particles.x, particles.y);
+        this.word.ctx.lineWdith = this.word.config.lineWidth;
+        this.word.ctx.strokeStyle = this.word.config.lineColor + perc + ')';
+        this.word.ctx.stroke();
+    }
+
+    update() {
+        // 位置更新
+        this.x += this.speed.x;
+        this.y += this.speed.y;
+
+        // 边缘检测
         if (this.x < 0 || this.x > this.word.width) {
             this.speed.x = -this.speed.x;
         }
         if (this.y < 0 || this.y > this.word.height) {
             this.speed.y = -this.speed.y;
         }
-    }
 
-    checkDistence() {
-        for (let i = 0, len = this.word.items.length; i < len; i++) {
-            const item = this.word.items[i];
-            if (this !== item) {
-                if (this.getDistence(item) < this.distence) {
-                    this.lineTo(item);
+        // 距离检测
+        this.word.items.forEach(item => {
+            if (item !== this) {
+                const distence = this.getDistence(item);
+                if (distence < this.distence) {
+                    this.lineTo(item, 0.4 - 0.35 * (distence / this.distence));
                 }
             }
+        });
+
+        // 连线到鼠标
+        if (this.getDistence(this.word.mouse, { x: this.x, y: this.y }) < this.distence) {
+            this.lineTo(this.word.mouse, 0.3);
         }
-        if (this.getDistence(this.word.mouse) < this.distence) {
-            this.lineTo(this.word.mouse);
-        }
-    }
-
-    getDistence(particles) {
-        return Math.sqrt(Math.pow(this.x - particles.x, 2) + Math.pow(this.y - particles.y, 2));
-    }
-
-    lineTo(particles) {
-        const ctx = this.word.ctx;
-        ctx.beginPath();
-        ctx.moveTo(this.x, this.y);
-        ctx.lineTo(particles.x, particles.y);
-        ctx.lineWdith = this.word.config.lineWidth;
-        ctx.strokeStyle = this.word.config.lineColor;
-        ctx.stroke();
-    }
-
-    update() {
-        this.x += this.speed.x;
-        this.y += this.speed.y;
-        this.checkBorder();
-        this.checkDistence();
     }
 
     render() {
-        const ctx = this.word.ctx;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = this.word.config.partilceColor;
-        ctx.fill();
+        this.word.ctx.beginPath();
+        this.word.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        this.word.ctx.fillStyle = this.word.config.partilceColor;
+        this.word.ctx.fill();
     }
 }
 
@@ -100,13 +85,12 @@ class Word {
 
         // 自定义配置信息
         this.config = {
-            linkDistence: 120,
-            particlesNum: 220,
-            newpraticlesNum: 3,
-            lineWidth: 0.5,
-            background: '#030303',
-            partilceColor: '#4fb0c6',
-            lineColor: 'rgba(79, 176, 198, 0.165)'
+            linkDistence: 120, // 连线距离
+            particlesNum: 200, // 粒子数量
+            lineWidth: 0.1, // 线条宽度
+            background: '#0303035f', // 背景颜色
+            partilceColor: '#4fb0c6', // 粒子颜色
+            lineColor: 'rgba(79, 176, 198, ' // 线条颜色
         };
 
         // 事件监听
@@ -142,11 +126,10 @@ class Word {
         this.ctx.fillStyle = this.config.background;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        for (let i = 0, len = this.items.length; i < len; i++) {
-            const item = this.items[i];
+        this.items.forEach(item => {
             item.update();
             item.render();
-        }
+        });
 
         window.requestAnimationFrame(() => this.render());
     }
