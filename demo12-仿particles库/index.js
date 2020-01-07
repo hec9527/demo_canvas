@@ -43,12 +43,7 @@ class Particles {
     }
 
     checkDistence() {
-        // this.word.items.forEach(item => {
-        //     if (item !== this && this.getDistence(item) <= this.distence) {
-        //         this.lineTo(item);
-        //     }
-        // });
-        for (let i = 0; i < this.word.config.particlesNum; i++) {
+        for (let i = 0, len = this.word.items.length; i < len; i++) {
             const item = this.word.items[i];
             if (this !== item) {
                 if (this.getDistence(item) < this.distence) {
@@ -147,10 +142,11 @@ class Word {
         this.ctx.fillStyle = this.config.background;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.items.forEach(item => {
+        for (let i = 0, len = this.items.length; i < len; i++) {
+            const item = this.items[i];
             item.update();
             item.render();
-        });
+        }
 
         window.requestAnimationFrame(() => this.render());
     }
