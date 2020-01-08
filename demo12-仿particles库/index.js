@@ -125,7 +125,6 @@ class Word {
     render() {
         this.ctx.fillStyle = this.config.background;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
         this.items.forEach(item => {
             item.update();
             item.render();
