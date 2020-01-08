@@ -40,10 +40,10 @@ class Particles {
         this.y += this.speed.y;
 
         // 边缘检测
-        if (this.x < 0 || this.x > this.word.width) {
+        if ((this.x < 0 && this.speed.x < 0) || (this.x > this.word.width && this.speed.x > 0)) {
             this.speed.x = -this.speed.x;
         }
-        if (this.y < 0 || this.y > this.word.height) {
+        if ((this.y < 0 && this.speed.y < 0) || (this.y > this.word.height && this.speed.y > 0)) {
             this.speed.y = -this.speed.y;
         }
 
