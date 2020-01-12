@@ -12,12 +12,12 @@ class Fragement {
     constructor(option = {}) {
         Object.assign(this, option);
 
-        this.items.add(this);
-
         const mass = this.radius * 300;
 
         const x = Math.random() * mass - mass / 2;
         const y = Math.random() * (mass - Math.abs(x)) - (mass - Math.abs(x)) / 2;
+
+        this.items.add(this);
 
         this.x = this.basePos.x + x;
         this.y = this.basePos.y + y;
@@ -43,7 +43,7 @@ class Fragement {
     }
 
     render() {
-        if (Math.random() < 0.5) return;
+        if (Math.random() < 0.5) return; // 闪烁效果
         this.ctx.beginPath();
         this.ctx.fillStyle = `hsl(${this.color}, 100%, ${this.light}%)`;
         this.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
@@ -52,18 +52,18 @@ class Fragement {
 }
 
 /**
- * 下坠粒子效果
+ * 粒子下坠
  */
 class fragementDrop {
     // items, basePos, color, radius, friction
     constructor(option = {}) {
         Object.assign(this, option);
 
-        this.items.add(this);
-
         const mass = this.radius * 3 + 3;
         const speedX = Math.random() * mass - mass / 2;
         const speedY = Math.random() * (mass - Math.abs(speedX)) - (mass - Math.abs(speedX)) / 2;
+
+        this.items.add(this);
 
         // 其它属性
         this.x = this.basePos.x;
@@ -120,17 +120,22 @@ class Fireworks {
         // 基础属性
         this.x = Math.random() * this.word.width;
         this.y = this.word.height + Math.random() * 50 + 30;
+
+        this.lastPos = { x: this.x, y: this.y };
         this.terminalPos = (Math.random() * this.word.height) / 3 + this.word.height / 5;
+
         this.color_hue = Math.random() * 360; // 色相
         this.color_sat = Math.random() * 30 + 70;
+
         this.radius = Math.random() * 3 + 5;
         this.radius_explode = ((Math.random() * this.word.width + 200) / 2) | 0; // 爆炸范围
+
         this.fragementDrop = Math.random() < 0.7 ? true : false;
+
         this.speed = {
             x: Math.random() < 0.5 ? Math.random() * 0.5 + 0.3 : -(Math.random() * 0.5 + 0.2),
             y: -(Math.random() * 5 + 8)
         };
-        this.lastPos = { x: this.x, y: this.y };
     }
 
     explode() {
