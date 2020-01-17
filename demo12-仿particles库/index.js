@@ -8,33 +8,25 @@ class Particles {
 
         this.x = this.word.click ? this.word.mouse.x : Math.random() * this.word.width;
         this.y = this.word.click ? this.word.mouse.y : Math.random() * this.word.height;
-        this.radius = Math.random() * 2 + 1.5;
-        this.speed = this.getRandomSpeed();
-
-        this.distence = this.word.config.linkDistence;
-    }
-
-    getRandomSpeed() {
-        return {
+        this.radius = Math.random() * 2 + 2;
+        this.speed = {
             x: Math.random() > 0.5 ? Math.random() * 1 + 0.5 : -(Math.random() * 1 + 0.1),
             y: Math.random() > 0.5 ? Math.random() * 1 + 0.5 : -(Math.random() * 1 + 0.1)
         };
     }
 
-    getDistence(p) {
-        return Math.sqrt((this.x - p.x) ** 2 + (this.y - p.y) ** 2);
-    }
+    render() {
+        // 工具函数
+        const ctx = this.word.ctx;
+        const getDistence = (p1, p2) => Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+        const drawLine = (p1, p2, color) => {
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = color;
+            ctx.stroke();
+        };
 
-    lineTo(particles, perc) {
-        this.word.ctx.beginPath();
-        this.word.ctx.moveTo(this.x, this.y);
-        this.word.ctx.lineTo(particles.x, particles.y);
-        this.word.ctx.lineWdith = this.word.config.lineWidth;
-        this.word.ctx.strokeStyle = this.word.config.lineColor + perc + ')';
-        this.word.ctx.stroke();
-    }
-
-    update() {
         // 位置更新
         this.x += this.speed.x;
         this.y += this.speed.y;
@@ -50,24 +42,26 @@ class Particles {
         // 距离检测
         this.word.items.forEach(item => {
             if (item !== this) {
-                const distence = this.getDistence(item);
-                if (distence < this.distence) {
-                    this.lineTo(item, 0.4 - 0.35 * (distence / this.distence));
+                const distence = getDistence(this, item);
+                if (distence <= this.word.linkDistence) {
+                    drawLine(this, item, '#4fb0c610');
                 }
             }
         });
 
         // 连线到鼠标
-        if (this.getDistence(this.word.mouse, { x: this.x, y: this.y }) < this.distence) {
-            this.lineTo(this.word.mouse, 0.3);
+        if (getDistence(this.word.mouse, { x: this.x, y: this.y }) <= this.word.linkDistence) {
+            drawLine(this.word.mouse, { x: this.x, y: this.y }, '#4fb0c67f');
         }
-    }
 
-    render() {
-        this.word.ctx.beginPath();
-        this.word.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        this.word.ctx.fillStyle = this.word.config.partilceColor;
-        this.word.ctx.fill();
+        // 绘制自身
+        ctx.drawImage(
+            this.word.img,
+            this.x - this.radius / 2,
+            this.y - this.radius / 2,
+            this.radius,
+            this.radius
+        );
     }
 }
 
@@ -78,20 +72,15 @@ class Word {
     constructor() {
         this.canvas = document.getElementById('canvas');
         this.ctx = this.canvas.getContext('2d');
+        this.ctx.lineWdith = 0.1;
 
+        // 基础属性
+        this.img = this.getDot();
         this.items = [];
-        this.click = false;
-        this.mouse = { x: 1, y: 1 };
-
-        // 自定义配置信息
-        this.config = {
-            linkDistence: 120, // 连线距离
-            particlesNum: 200, // 粒子数量
-            lineWidth: 0.1, // 线条宽度
-            background: '#0303035f', // 背景颜色
-            partilceColor: '#4fb0c6', // 粒子颜色
-            lineColor: 'rgba(79, 176, 198, ' // 线条颜色
-        };
+        this.mouse = {};
+        this.linkDistence = 120; // 连线距离
+        this.particlesNum = 300; // 粒子数量
+        this.lineColor = '#4fb0c6'; // 线条颜色
 
         // 事件监听
         window.addEventListener('resize', () => this.resize());
@@ -112,9 +101,29 @@ class Word {
         this.render();
 
         // 生成粒子
-        for (let i = 0; i < this.config.particlesNum; i++) {
+        for (let i = 0; i < this.particlesNum; i++) {
             new Particles(this);
         }
+    }
+
+    getDot() {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 100;
+        canvas.height = 100;
+
+        const gradient = ctx.createRadialGradient(50, 50, 0, 50, 50, 50);
+        gradient.addColorStop(0.04, '#4fb0c669');
+        gradient.addColorStop(0.2, '#4fb0c650');
+        gradient.addColorStop(0.6, '#4fb0c610');
+        gradient.addColorStop(1, 'transparent');
+
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(50, 50, 50, 0, Math.PI * 2);
+        ctx.fill();
+
+        return canvas;
     }
 
     resize() {
@@ -123,12 +132,9 @@ class Word {
     }
 
     render() {
-        this.ctx.fillStyle = this.config.background;
+        this.ctx.fillStyle = '#0303035f';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        this.items.forEach(item => {
-            item.update();
-            item.render();
-        });
+        this.items.forEach(item => item.render());
 
         window.requestAnimationFrame(() => this.render());
     }
