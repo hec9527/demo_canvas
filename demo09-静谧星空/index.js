@@ -6,34 +6,14 @@ class StarStar {
         this.word = word;
         this.word.items.push(this);
 
-        this.x = this.getRandomPosX();
-        this.y = this.getRandomPosY();
-        this.raduis = this.getRandomRadius();
-        this.opacity = this.getOpacity();
+        this.x = Math.random() * this.word.width;
+        this.y = Math.random() * this.word.height;
+        this.raduis = Math.random() * 0.7 + 0.5;
+        this.blinkStep = Math.random() * 0.005 + 0.007;
+        this.opacity = 0.1 + (this.raduis / 1.2) * 0.5;
         this.minOpacity = this.opacity / 10;
         this.maxOpacity = 2 * this.opacity >= 1 ? 1 : 2 * this.opacity;
         this.isBlink = true; // 是否亮度增加
-        this.blinkStep = this.getRandomBlinkStep();
-    }
-
-    getRandomBlinkStep() {
-        return Math.random() * 0.005 + 0.007;
-    }
-
-    getRandomPosX() {
-        return Math.random() * this.word.width;
-    }
-
-    getRandomPosY() {
-        return Math.random() * this.word.height;
-    }
-
-    getRandomRadius() {
-        return Math.random() * 0.7 + 0.5;
-    }
-
-    getOpacity() {
-        return 0.1 + (this.raduis / 1.2) * 0.5;
     }
 
     update() {
