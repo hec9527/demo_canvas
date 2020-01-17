@@ -212,7 +212,7 @@ class Word {
         this.render();
 
         // 事件监听
-        window.addEventListener('resize', this.resize);
+        window.addEventListener('resize', () => this.resize());
 
         // 添加烟花
         for (let i = 0; i < this.config.fireworkNum; i++) {
