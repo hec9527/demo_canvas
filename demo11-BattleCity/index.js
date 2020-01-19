@@ -4,22 +4,86 @@
  * @change     2020-1-4
  * @description
  *
+ *   说明：
  *      1, 自由软件协议
  *      2，本游戏采用HTML、CSS、JS制作
  *      3，在游戏逻辑部分使用ES6的语法，需要一定的canvas功底
+ *
+ *
+ *   优化：
+ *      1， 只有运动的物体才会调用碰撞检测，减少运算量
+ *      2， 跳过没有体积碰撞的实体
  *
  */
 
 // ------------------   工具函数--开始   --------------------------
 
 /**
- * 碰撞检测
- * 参与碰撞检测的对象必须包括pos属性，以及width属性，collision
+ * 碰撞检测 ———
+ * 判断两个实体对象下一帧是否会发生碰撞
+ * @param {Entity} entity1 实体对象
+ * @param {Entity} entity2 实体对象
+ * @return {Boolean} Boolen
+ */
+function collisionDetectionNextTick(entity1, entity2) {
+    // 检测是不是Entity是实例
+    if (!entity1 instanceof Entity || !entity2 instanceof Entity) {
+        throw new Error('参与碰撞检测对象，必须是Entity类的实例或者继承至Entity类的子类的实例');
+    }
+
+    // 排除不需要检测的对象
+    if (!entity1.collision || !entity2.collision) {
+        return false;
+    }
+
+    // 跳过不移动的物体
+    if ((entity1.speed === entity2.speed) === 0) {
+        return false;
+    }
+
+    // 检测是否发生碰撞
+    const pos1 = { ...entity1.pos };
+    const pos2 = { ...entity2.pos };
+    const move = (pos, dir, speed) => {
+        const dirs = {
+            top: () => (pos.y -= speed),
+            left: () => (pos.x -= speed),
+            right: () => (pos.x += speed),
+            bottom: () => (pos.y += speed)
+        };
+        dirs[dir]();
+    };
+    move(pos1, entity1.direction, entity1.speed);
+    move(pos2, entity2.direction, entity2.speed);
+
+    if (
+        pos1.x <= pos2.x &&
+        pos1.y <= pos2.y &&
+        pos1.x + entity1.width >= pos2.x &&
+        pos1.y + entity1.width >= pos2.y
+    ) {
+        return true;
+    }
+
+    if (
+        pos1.x <= pos2.x &&
+        pos2.x <= pos1.x + entity1.width &&
+        pos1.y >= pos2.y + entity2.width &&
+        pos2.y + entity2.width >= pos1.y - entity1.width
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * 碰撞检测 ——— 判断两个实体对象是否已经碰撞
  * @param entity1 {Entity} Entity 类的实例
  * @param entity2 {Entity} Entity 类的实例
  * @returns boolen {Boolen} 对象是否碰撞
  */
-function collisionDetection(entity1, entity2) {
+function collisionDetectionThisTick(entity1, entity2) {
     // 检测是不是Entity是实例
     if (!entity1 instanceof Entity || !entity2 instanceof Entity) {
         throw new Error('参与碰撞检测对象，必须是Entity类的实例或者继承至Entity类的子类的实例');
@@ -42,8 +106,8 @@ function collisionDetection(entity1, entity2) {
 
     if (
         entity1.pos.x <= entity2.pos.x &&
-        entity1.pos.y >= entity2.pos.y &&
-        entity1.pos.x + entity1.width >= entity2.pos.x &&
+        entity2.pos.x <= entity1.pos.x + entity1.width &&
+        entity1.pos.y >= entity2.pos.y + entity2.width &&
         entity1.pos.y - entity1.width <= entity2.pos.y + entity2.width
     ) {
         return true;
@@ -124,7 +188,6 @@ class KeyBorad {
     constructor(word) {
         this.word = word;
         this.word.keyBorad = this;
-        this.BLOCK = this.word.game.KEYBORAD_BLOCK = false;
 
         // ! TODO 双线发展，后期测试 key 和 keyCode 究竟那个更加方便合适
         this.keyCode = new Set();
@@ -132,7 +195,7 @@ class KeyBorad {
 
         // 键盘   --  按下
         window.addEventListener('keydown', e => {
-            if (!this.BLOCK) {
+            if (!this.word.game.KEYBORAD_BLOCK) {
                 this.keyCode.add(e.keyCode);
                 this.keys.add(e.key);
             }
@@ -279,7 +342,7 @@ class Player {
 
         this.index = this.PLAYER_LIST.length;
         this.life = 3;
-        this.tank = {}; // 玩家的坦克
+        this.tank = undefined; // 玩家的坦克
         this.scope = 0; // 玩家分数
         this.scopeAward = 0; // 分数奖励次数
     }
@@ -358,16 +421,18 @@ class Windows {}
  * 所有现实在游戏画面上的所有实体的父类
  */
 class Entity {
-    constructor(word, image, pos, clip) {
+    constructor(word, image, pos, clips) {
         this.word = word;
         this.word.items.add(this);
 
         // 实体的游戏属性
-        this.image = image;
-        this.birthPos = pos;
+        this.image = image; // 精灵图
+        this.birthPos = pos; // 出生位置
         this.pos = pos; // 实体的实际位置
-        this.clip = clip; // 实体在精灵图中的剪切位置
-        this.icon = this.clip; // 当前展示的icon
+        this.camp = 'neutral'; // 实体的阵营  'neutral' 'enemy' 'ally'
+        this.clipIndex = 0;
+        this.clips = clips; // 实体的剪切列表
+        this.clip = clips; // 实体在精灵图中的剪切位置
         this.tick = 0; // 计数器
         this.direction = 'top'; // 实体默认都朝上
         this.speed = 0; // 默认实体移速为0
@@ -377,23 +442,18 @@ class Entity {
 
     setDirection(dir) {
         this.direction = dir;
-        this.setClip(dir, option);
     }
 
     setClip(dir, option) {}
 
-    move(dir) {
-        if (this.dir !== dir) {
-            return this.setDirection(dir);
-        } else {
-            const dirs = {
-                top: () => (this.pos.y -= this.speed),
-                left: () => (this.pos.x -= this.speed),
-                bottom: () => (this.pos.y += this.speed),
-                right: () => (this.pos.x += this.speed)
-            };
-            dirs(dir);
-        }
+    move() {
+        const dirs = {
+            top: () => (this.pos.y -= this.speed),
+            left: () => (this.pos.x -= this.speed),
+            bottom: () => (this.pos.y += this.speed),
+            right: () => (this.pos.x += this.speed)
+        };
+        return dirs[this.direction]();
     }
 
     die() {
@@ -405,18 +465,16 @@ class Entity {
     }
 
     render() {
-        const ctx = this.word.ctx;
-
-        ctx.drawImage(
+        this.word.ctx.drawImage(
             this.image,
-            this.icon.x * 32,
-            this.icon.y * 32,
-            32,
-            32,
-            this.pos.x * 32,
-            this.pos.y * 32,
-            32,
-            32
+            this.clip.x * this.width,
+            this.clip.y * this.width,
+            this.width,
+            this.width,
+            this.pos.x,
+            this.pos.y,
+            this.width,
+            this.width
         );
     }
 }
@@ -431,10 +489,9 @@ class Tank extends Entity {
         // 所有坦克应该新增的属性以及方法
         this.life = 1;
         this.level = 1;
-        this.camp = undefined; // 坦克的阵营
         this.bulletNum = 1;
         this.bullets = new Set(); // 弹夹
-        this.speed = 16; // 所有坦克的默认速度，不同坦克可以覆盖这个默认值
+        this.speed = 2; // 所有坦克的默认速度，不同坦克可以覆盖这个默认值
     }
 
     shoot() {
@@ -459,65 +516,48 @@ class Bullet extends Entity {
         this.tank.bullets.add(this);
 
         // 子弹的游戏属性
-        this.pos = this.getPos(tank.pos);
-        this.speed = this.tank.bulletSpeed || 5;
-        this.direction = this.tank.direction;
-        this.direction = 'right';
         this.width = 8;
+        this.pos = this.getPos();
+        this.camp = this.tank.camp;
+        this.speed = this.tank.bulletSpeed || 3;
+        this.direction = this.tank.direction;
     }
 
-    getPos(pos) {
-        // 右侧
-        return { x: pos.x * 32 + 24, y: pos.y * 32 + 12 };
-    }
-
-    move() {
+    getPos() {
         const dirs = {
-            top: () => (this.pos.y -= this.speed),
-            left: () => (this.pos.x -= this.speed),
-            bottom: () => (this.pos.y += this.speed),
-            right: () => (this.pos.x += this.speed)
+            top: { x: this.tank.pos.x + 12, y: this.tank.pos.y },
+            left: { x: this.tank.pos.x, y: this.tank.pos.y + 12 },
+            bottom: { x: this.tank.pos.x + 12, y: this.tank.pos.y + 24 },
+            right: { x: this.tank.pos.x + 24, y: this.tank.pos.y + 12 }
         };
-        dirs[this.direction]();
-        this.collisionDetection();
-    }
-
-    collisionDetection() {
-        if (
-            this.pos.x + 8 > this.word.width ||
-            this.pos.x < 0 ||
-            this.pos.y + 8 > this.word.height ||
-            this.pos.y < 0
-        ) {
-            return this.die();
-        } else {
-            this.word.items.forEach(item => {
-                // 逐个检测
-            });
-        }
+        return dirs[this.tank.direction];
     }
 
     die() {
-        this.word.items.delete(this);
+        super().die();
         this.tank.bullets.delete(this);
+    }
+
+    collisionDetection() {
+        //  触碰边界子弹死亡
+        if (collisionBorder(this, this.word)) {
+            return this.die();
+        }
+
+        // 逐个检测是否碰撞
+        this.word.items.forEach(item => {
+            if (collisionDetectionThisTick(this, item)) {
+                if (this.camp !== item.camp) {
+                    this.die();
+                    item.die();
+                }
+            }
+        });
     }
 
     update() {
         this.move();
-    }
-
-    render() {
-        this.word.ctx.drawImage(
-            this.image,
-            this.clip.x * 8,
-            this.clip.y * 8,
-            8,
-            8,
-            this.pos.x,
-            this.pos.y,
-            8,
-            8
-        );
+        this.collisionDetection();
     }
 }
 
@@ -556,15 +596,15 @@ class Word {
 
     start() {
         if (!this.images.loaded || !this.sound.loaded) {
-            setTimeout(() => this.start(), 100);
-        } else {
-            this.printer.copyright();
-            this.render();
-
-            // !  测试数据
-            window.t = new Tank(word, this.images.images.myTank, { x: 0, y: 4 }, { x: 0, y: 3 });
-            t.shoot();
+            return setTimeout(() => this.start(), 100);
         }
+
+        this.printer.copyright();
+        this.render();
+
+        // !  测试数据
+        window.t = new Tank(word, this.images.images.myTank, { x: 0, y: 4 * 32 }, { x: 0, y: 3 });
+        t.shoot();
     }
 
     render() {
