@@ -111,7 +111,7 @@ class Print {
             padding:0px 184px; line-height:136px;margin: 15px calc(50% - 184px);`
         );
         console.log(
-            `%c@author: hec9527\n@time:   2020-1-5\n@description: \n\n\thi，你好。你能看到这条消息，多半也是程序员。无论是不是，请在程序中保留第一作者，虽然微不足道，但是修改作者署名，并且将其劳动成果据为己有是一种可耻且让人厌恶的行为，这是对开源社区的一种伤害。\n\t如果你在使用过程中发现有任何bug，或者优化建议，可以直接发送到我的邮箱:\thec9526@foxmail.com\n\n`,
+            `%c@author: hec9527\n@time:   2020-1-5\n@description: \n\n\thi，你好程序员，这是我无聊时写的一个小游戏，主要是为了向经典致敬，其中很多实现方式可能不是很科学合理，或许有更好的实现方法。我知道，那些肯定都会有的，所以这个项目需要更多人来不断优化迭代它，让它能成为一个可以作为新手学习的项目，就像"hello world"或者"图书管理系统"一样，在rookie中发光发热。\n\t如果你在使用过程中发现有任何bug，或者优化建议，可以直接发送到我的邮箱:\thec9526@foxmail.com\n\n`,
             'color:red'
         );
     }
