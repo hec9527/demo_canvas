@@ -2,92 +2,116 @@
     padding: 0;
     margin: 0;
     user-select: none;
+    font-family: 'CODE-Bold PingFang Sc, MicroSoft YaHei, Segoe UI', Tahoma, Geneva, Verdana,
+        sans-serif;
 }
+
+html,
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+body {
+    background: url(../bilibili.jpg);
+    background-position: center;
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.glass {
+    backdrop-filter: blur(20px);
+}
+
+.glass::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.3);
+}
+
 #continer {
     overflow: hidden;
-    position: absolute;
-    margin: auto;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
     width: 900px;
     height: 600px;
-    border: 1px solid rgba(117, 115, 115, 0.753);
-    box-shadow: 8px 6px 10px rgba(117, 115, 115, 0.453);
+    border: 1px solid rgba(117, 115, 115, 0.294);
+    border-radius: 15px;
+    display: flex;
+    flex-direction: row;
 }
+
 #gameBox {
     width: 600px;
     height: 600px;
-    box-sizing: padding-box;
-    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
+#canvas {
+    background: #000;
+}
+
 #wall {
     width: 1px;
     height: 100%;
-    background: rgba(117, 115, 115, 0.753);
-    position: absolute;
-    left: 600px;
-    top: 0;
-}
-#mesBox {
-    text-align: center;
-    width: 300px;
-    height: 100%;
-    box-sizing: border-box;
-    position: absolute;
-    right: 0;
-}
-/* 背景层 */
-#canvas {
-    z-index: 0;
-    position: absolute;
-    top: 0;
-    right: 0;
-    left: 0;
-    bottom: 0;
-    margin: auto;
-    border: 1px solid rgba(117, 115, 115, 0.753);
-    background: #000;
-}
-#tips {
-    width: 100%;
-    height: 60%;
-    margin: auto;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    position: absolute;
-    color: #4e4e4e;
-}
-#player1,
-#player2 {
-    position: relative;
-    margin: 15px;
-    display: block;
-    width: 70%;
-    text-align: left;
-    font-size: 16px;
-    font-weight: bolder;
-}
-#player1_mes,
-#player2_mes {
-    font-size: 14px;
-}
-#copyRight {
-    position: absolute;
-    bottom: 50px;
-    right: 45px;
-    font-size: 10px;
-    color: grey;
+    background: rgba(117, 115, 115, 0.3);
 }
 
-h3 {
+#mesBox {
+    /* 暂存 */
+    width: 300px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.title {
     -webkit-background-clip: text !important;
-    font-weight: 900;
-    background-clip: text;
-    padding: 30px;
-    color: transparent;
     background: url(./image/text.png);
+    background-clip: text;
+    color: transparent;
+    font-weight: 900;
+    margin: 0 0 35px 0;
+    font-size: 35px;
+}
+
+.group {
+    width: 70%;
+    font-size: 14px;
+    color: #54546c;
+    height: 120px;
+}
+
+.role {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+}
+
+#copyRight {
+    position: absolute;
+    color: #e3dede;
+    right: 15px;
+    bottom: 7px;
+    font-size: 12px;
 }

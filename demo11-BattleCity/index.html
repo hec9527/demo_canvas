@@ -9,34 +9,48 @@
     </head>
 
     <body>
-        <div id="continer">
+        <div id="continer" class="glass">
             <div id="gameBox">
                 <canvas id="canvas" width="516" height="456"></canvas>
             </div>
             <div id="wall"></div>
             <div id="mesBox">
-                <div id="tips">
-                    <h3>游戏操作</h3>
-                    <div id="tips_player1">
-                        <span id="player1">玩家一：<br /></span>
-                        <span id="player1_mes">
-                            上 : W &nbsp; 下 : S &nbsp; 左 ：A &nbsp; 右 ：D&nbsp;<br />
-                            连发/取消：J&nbsp; 单发/确认:K<br />
-                            开始/暂停：B
-                        </span>
-                    </div>
-                    <div id="tips_player2">
-                        <span id="player2">玩家二：<br /></span>
-                        <span id="player2_mes">
-                            上 ：↑ &nbsp; 下 ：↑ &nbsp; 左 :← &nbsp; 右 : →<br />
-                            单发 : ； &nbsp; 连续 : ’
-                        </span>
+                <h3 class="title">BATTLE CITY</h3>
+                <div class="group">
+                    <div class="role">玩家一</div>
+                    <div class="flex-row">
+                        <p class="flex-col">
+                            <span class="operater">上 : W</span>
+                            <span class="operater">下 : S</span>
+                            <span class="operater">左 : A</span>
+                            <span class="operater">右 : D</span>
+                        </p>
+                        <p class="flex-col">
+                            <span class="operater">连发/取消: J</span>
+                            <span class="operater">单发/确认: K</span>
+                            <span class="operater">开始/暂停: B</span>
+                        </p>
                     </div>
                 </div>
-                <div id="copyRight">
-                    <div id="myLoge">
-                        DISIGN BY HECHUN
+                <div class="group">
+                    <div class="role">玩家二</div>
+                    <div class="flex-row">
+                        <p class="flex-col">
+                            <span class="operater">上 : ⬆️</span>
+                            <span class="operater">下 : ⬇️</span>
+                            <span class="operater">左 : ⬅️</span>
+                            <span class="operater">右 : ➡️</span>
+                        </p>
+                        <p class="flex-col">
+                            <span class="operater">连发 : l</span>
+                            <span class="operater">单发 : ;</span>
+                        </p>
                     </div>
+                </div>
+            </div>
+            <div id="copyRight">
+                <div id="myLoge">
+                    DISIGN BY HEC9527
                 </div>
             </div>
         </div>
