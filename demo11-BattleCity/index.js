@@ -10,6 +10,73 @@
  *
  */
 
+// ------------------   工具函数--开始   --------------------------
+
+/**
+ * 碰撞检测
+ * 参与碰撞检测的对象必须包括pos属性，以及width属性，collision
+ * @param entity1 {Entity} Entity 类的实例
+ * @param entity2 {Entity} Entity 类的实例
+ * @returns boolen {Boolen} 对象是否碰撞
+ */
+function collisionDetection(entity1, entity2) {
+    // 检测是不是Entity是实例
+    if (!entity1 instanceof Entity || !entity2 instanceof Entity) {
+        throw new Error('参与碰撞检测对象，必须是Entity类的实例或者继承至Entity类的子类的实例');
+    }
+
+    // 排除不需要检测的对象
+    if (!entity1.collision || !entity2.collision) {
+        return false;
+    }
+
+    // 碰撞检测
+    if (
+        entity1.pos.x <= entity2.pos.x &&
+        entity1.pos.y <= entity2.pos.y &&
+        entity1.pos.x + entity1.width >= entity2.pos.x &&
+        entity1.pos.x + entity1.width >= entity2.pos.y
+    ) {
+        return true;
+    }
+
+    if (
+        entity1.pos.x <= entity2.pos.x &&
+        entity1.pos.y >= entity2.pos.y &&
+        entity1.pos.x + entity1.width >= entity2.pos.x &&
+        entity1.pos.y - entity1.width <= entity2.pos.y + entity2.width
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * 边缘检测
+ * @param {Entity} entity Entity 实例
+ * @return {Boolean} Boolen 是否触碰边缘
+ */
+function collisionBorder(entity, word) {
+    // 检测是否为 Entity 类的实例
+    if (!entity instanceof Entity) {
+        throw new Error('参与边缘检测的对象，必须是Entity类的实例或者继承至Entity类的子类的实例');
+    }
+
+    // 边缘检测
+    if (
+        entity.pos.x < 0 ||
+        entity.pos.x + entity.width > word.width ||
+        entity.pos.y < 0 ||
+        entity.pos.y + entity.width > word.height
+    ) {
+        return true;
+    }
+
+    return false;
+}
+// ------------------   工具函数--结束   --------------------------
+
 /**
  * 工具类
  * 输入到控制台
