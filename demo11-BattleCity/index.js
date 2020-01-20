@@ -141,11 +141,48 @@ function collisionBorder(entity, word) {
 }
 
 /**
- *
- * @param {*} entity1
- * @param {*} entity2
+ * 获取当前帧两个实体的距离
+ * @param {Entity} entity1 Entity类的实例
+ * @param {Entity} entity2  Entity类的实例
+ * @returns {Number} 返会两个实体的距离
  */
-function getDistence(entity1, entity2) {}
+function getDistenceThisTick(entity1, entity2) {
+    if (!entity1 instanceof Entity || !entity2 instanceof Entity) {
+        throw new Error('参与距离检测的对象必须是Entity类的实例，或者继承至Entity类');
+    }
+
+    // 获取两个对象的左上角的位置
+    return Math.sqrt((entity1.pos.x - entity2.pos.x) ** 2 + (entity1.pos.y - entity2.pos.y) ** 2);
+}
+
+/**
+ * 获取下一帧两个实体的距离
+ * @param {Entity} entity1  Entity类的实例
+ * @param {Entity} entity2   Entity类的实例
+ * @returns {Number} 返回两个实体的下一帧的距离
+ */
+function getDistenceNextTick(entity1, entity2) {
+    if (!entity1 instanceof Entity || !entity2 instanceof Entity) {
+        throw new Error('参与距离检测的对象必须是Entity类的实例，或者继承至Entity类');
+    }
+
+    // 先更新实体的位置再获取距离
+    const pos1 = { ...entity1.pos };
+    const pos2 = { ...entity2.pos };
+    const move = (pos, dir, speed) => {
+        const dirs = {
+            top: () => (pos.y -= speed),
+            left: () => (pos.x -= speed),
+            right: () => (pos.x += speed),
+            bottom: () => (pos.y += speed)
+        };
+        dirs[dir]();
+    };
+    move(pos1, entity1.direction, entity1.speed);
+    move(pos2, entity2.direction, entity2.speed);
+
+    return Math.sqrt((pos1.x - pos2.x) ** 2 + (pos1.y - pos2.y) ** 2);
+}
 // ------------------   工具函数--结束   --------------------------
 
 /**
