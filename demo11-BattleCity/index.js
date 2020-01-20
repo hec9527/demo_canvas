@@ -139,6 +139,13 @@ function collisionBorder(entity, word) {
 
     return false;
 }
+
+/**
+ *
+ * @param {*} entity1
+ * @param {*} entity2
+ */
+function getDistence(entity1, entity2) {}
 // ------------------   工具函数--结束   --------------------------
 
 /**
@@ -189,36 +196,27 @@ class KeyBorad {
         this.word = word;
         this.word.keyBorad = this;
 
-        // ! TODO 双线发展，后期测试 key 和 keyCode 究竟那个更加方便合适
         this.keyCode = new Set();
-        this.keys = new Set();
 
         // 键盘   --  按下
         window.addEventListener('keydown', e => {
             if (!this.word.game.KEYBORAD_BLOCK) {
                 this.keyCode.add(e.keyCode);
-                this.keys.add(e.key);
             }
         });
 
         // 键盘  -- 抬起
         window.addEventListener('keyup', e => {
             this.keyCode.delete(e.keyCode);
-            this.keys.delete(e.key);
         });
     }
 
-    hasKey(key) {
-        return this.keys.has(key);
-    }
-
-    hasKeyCode(code) {
+    hasKey(code) {
         return this.keyCode.has(code);
     }
 
     clear() {
         this.keyCode.clear();
-        this.keys.clear();
     }
 }
 
@@ -392,6 +390,8 @@ class Game {
         this.PLAYER_LIST = [];
         // 游戏当前关卡
         this.GAME_RANK = 1;
+        // 当前的奖励
+        this.REWARD = undefined;
     }
 
     loadConfig() {
@@ -421,7 +421,7 @@ class Windows {}
  * 所有现实在游戏画面上的所有实体的父类
  */
 class Entity {
-    constructor(word, image, pos, clips) {
+    constructor(word, image, pos, clip) {
         this.word = word;
         this.word.items.add(this);
 
@@ -431,8 +431,7 @@ class Entity {
         this.pos = pos; // 实体的实际位置
         this.camp = 'neutral'; // 实体的阵营  'neutral' 'enemy' 'ally'
         this.clipIndex = 0;
-        this.clips = clips; // 实体的剪切列表
-        this.clip = clips; // 实体在精灵图中的剪切位置
+        this.clip = clip; // 实体在精灵图中的剪切位置
         this.tick = 0; // 计数器
         this.direction = 'top'; // 实体默认都朝上
         this.speed = 0; // 默认实体移速为0
@@ -440,20 +439,20 @@ class Entity {
         this.collision = true; // 是否参与碰撞检测
     }
 
-    setDirection(dir) {
-        this.direction = dir;
-    }
-
-    setClip(dir, option) {}
-
     move() {
-        const dirs = {
-            top: () => (this.pos.y -= this.speed),
-            left: () => (this.pos.x -= this.speed),
-            bottom: () => (this.pos.y += this.speed),
-            right: () => (this.pos.x += this.speed)
-        };
-        return dirs[this.direction]();
+        // const ifCanMove = Array.from(this.word.items).every(item => {
+        //     return !collisionDetectionNextTick(this, item);
+        // });
+        const ifCanMove = true;
+        if (ifCanMove) {
+            const dirs = {
+                top: () => (this.pos.y -= this.speed),
+                left: () => (this.pos.x -= this.speed),
+                bottom: () => (this.pos.y += this.speed),
+                right: () => (this.pos.x += this.speed)
+            };
+            return dirs[this.direction]();
+        }
     }
 
     die() {
@@ -487,7 +486,6 @@ class Tank extends Entity {
         super(word, image, pos, clip);
 
         // 所有坦克应该新增的属性以及方法
-        this.life = 1;
         this.level = 1;
         this.bulletNum = 1;
         this.bullets = new Set(); // 弹夹
@@ -499,7 +497,108 @@ class Tank extends Entity {
             return new Bullet(this);
         }
     }
-    update() {}
+}
+
+/**
+ * 敌方坦克类
+ * 击杀敌方坦克根据等级不同，分数为100，200，300，400，500。
+ * 使用炸弹杀死的坦克，每个200增加200分
+ */
+class EnemyTank extends Tank {
+    constructor(word) {
+        const image = word.images.images.enemyTank;
+        const pos = (() => {
+            const random = Math.random();
+            return { x: 0, y: random < 0.33 ? 0 : random < 0.66 ? 192 : 384 };
+        })();
+        const clips = [0, 0];
+
+        super(word, image, pos, clips);
+
+        this.word = word;
+        this.camp = 'enemy';
+        this.direction = 'bottom';
+        this.level = (Math.random * 5) | 0;
+        this.reward = Math.random() <= 0.2 ? Math.random() * 3 + 1 : 0;
+        this.armor = this.level <= 4 ? 0 : 2;
+        this.isMoveing = false;
+    }
+
+    die() {
+        if (this.reward > 0) {
+            this.reward--;
+            return new Reward(this.word);
+        }
+        if (this.armor > 0) {
+            return this.armor--;
+        }
+        this.word.items.delete(this);
+    }
+
+    changeClip() {
+        const clip = { x: 0, y: 0 };
+        const dirs = {
+            left: () => (clip.y = 6),
+            right: () => (clip.y = 2),
+            buttom: () => (clip.y = 4)
+        };
+        dirs[this.direction]();
+        this.clipIndex === 1((clip.y += 1));
+
+        if (this.level <= 3) {
+            clip.x = (this.level - 1) * 2;
+        } else {
+            this.level === 4 && clip.x === 6;
+            this.level === 4 && clip.y === 8;
+        }
+        i(this.reward !== 0) && (clip.x += 1);
+    }
+
+    update() {
+        this.tick++;
+        this.shoot();
+
+        if (!this.isMoveing) {
+            const rand = Math.rand;
+            const dir = rand < 0.3 ? 'bottom' : rand < 0.55 ? 'left' : rand < 0.8 ? 'right' : 'top';
+
+            this.direction = dir;
+            return this.changeClip();
+        }
+
+        this.move();
+        if (this.tick >= 60) {
+            this.clipIndex = this.clipIndex === 1 ? 0 : 1;
+            this.changeClip();
+        }
+    }
+}
+
+/**
+ * 友方坦克
+ */
+class AllyTank extends Tank {
+    // deputy = true 表示为2号玩家
+    constructor(word, deputy = false) {
+        const image = word.images.images.myTank;
+        const pos = { x: deputy ? 176 : 240, y: 416 }; // ! 注意这里的具体数值需要经过测量
+        const clip = { x: 0, y: 0 };
+        const p1Keys = { top: 87, left: 65, bottom: 83, right: 68, single: 71, double: 72 };
+        const p2Keys = {};
+
+        super(word, image, pos, clip);
+        this.camp = 'ally';
+        this.keys = deputy ? p2Keys : p1Keys;
+    }
+
+    update() {
+        this.tick++;
+
+        const keyBorad = this.word.keyBorad;
+
+        // if (keyBorad.hasKey(dir['top'])) {
+        // }
+    }
 }
 
 /**
@@ -534,7 +633,7 @@ class Bullet extends Entity {
     }
 
     die() {
-        super().die();
+        super.die();
         this.tank.bullets.delete(this);
     }
 
@@ -558,6 +657,15 @@ class Bullet extends Entity {
     update() {
         this.move();
         this.collisionDetection();
+    }
+}
+
+/**
+ * 奖励类
+ */
+class Reward extends Entity {
+    constructor(word) {
+        // super()
     }
 }
 
@@ -603,7 +711,7 @@ class Word {
         this.render();
 
         // !  测试数据
-        window.t = new Tank(word, this.images.images.myTank, { x: 0, y: 4 * 32 }, { x: 0, y: 3 });
+        window.t = new AllyTank(word);
         t.shoot();
     }
 
