@@ -273,10 +273,21 @@ class Sound {
     }
 
     load() {
-        const music = this.word.game.config.sound;
         const pwd = this.word.pwd;
         const sound = this.sound;
         const printer = this.word.printer;
+        const music = {
+            attack: '/music/attack.mp3',
+            attackOver: '/music/attackOver.mp3',
+            bomb: '/music/bomb.mp3',
+            eat: '/music/eat.mp3',
+            move: '/music/move.mp3',
+            life: '/music/life.mp3',
+            misc: '/music/misc.mp3', // 定时
+            over: '/music/over.mp3',
+            pasue: '/music/pause.mp3',
+            start: '/music/start.mp3'
+        };
 
         // ES2020
         Promise.allSettled(
@@ -332,10 +343,18 @@ class Images {
     }
 
     load() {
-        const images = this.word.game.config.image;
         const pwd = this.word.pwd;
         const resource = this.images;
         const printer = this.word.printer;
+        const images = {
+            bonus: '/image/bonus.png',
+            explode: '/image/explode.png', // 爆炸
+            brick: '/image/brick.png',
+            enemyTank: '/image/enemyTank.png',
+            myTank: '/image/myTank.png',
+            tool: '/image/tool.png',
+            ui: '/image/UI.png'
+        };
 
         Promise.allSettled(
             (() => {
