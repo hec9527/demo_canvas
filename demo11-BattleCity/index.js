@@ -234,6 +234,7 @@ class KeyBorad {
         this.word.keyBorad = this;
 
         this.keyCode = new Set();
+        this.blockCode = new Set();
 
         // 键盘   --  按下
         window.addEventListener('keydown', e => {
@@ -245,7 +246,17 @@ class KeyBorad {
         // 键盘  -- 抬起
         window.addEventListener('keyup', e => {
             this.keyCode.delete(e.keyCode);
+            this.blockCode.delete(e.keyCode);
         });
+    }
+
+    addBlock(code) {
+        return this.blockCode.add(code);
+    }
+
+    // 被屏蔽的按键
+    hasBlock(code) {
+        return this.blockCode.has(code);
     }
 
     hasKey(code) {
@@ -254,6 +265,7 @@ class KeyBorad {
 
     clear() {
         this.keyCode.clear();
+        this.blockCode.clear();
     }
 }
 
@@ -432,12 +444,10 @@ class Player {
  * 用于存放游戏中的运行时参数
  */
 class Game {
-    constructor(word) {
+    async constructor(word) {
         this.word = word;
         this.word.game = this;
 
-        // 配置文件
-        this.config = this.loadConfig();
         // 键盘锁定
         this.KEYBORAD_BLOCK = false;
         // 玩家数量
@@ -448,17 +458,6 @@ class Game {
         this.GAME_RANK = 1;
         // 当前的奖励
         this.REWARD = undefined;
-    }
-
-    loadConfig() {
-        if (window.config) {
-            this.word.printer.info('load config');
-            const config = window.config;
-            Reflect.deleteProperty(window, config);
-            return config;
-        } else {
-            setTimeout(() => this.loadConfig(), 10);
-        }
     }
 
     reset() {
@@ -639,21 +638,122 @@ class AllyTank extends Tank {
         const image = word.images.images.myTank;
         const pos = { x: deputy ? 176 : 240, y: 416 }; // ! 注意这里的具体数值需要经过测量
         const clip = { x: 0, y: 0 };
-        const p1Keys = { top: 87, left: 65, bottom: 83, right: 68, single: 71, double: 72 };
-        const p2Keys = {};
+        const p1Keys = {
+            top: 87,
+            left: 65,
+            bottom: 83,
+            right: 68,
+            single: 71,
+            double: 72,
+            pause: 99
+        };
+        const p2Keys = {
+            top: 38,
+            left: 37,
+            right: 39,
+            bottom: 40,
+            single: 76,
+            double: 186
+        };
 
         super(word, image, pos, clip);
         this.camp = 'ally';
+        this.deputy = deputy;
         this.keys = deputy ? p2Keys : p1Keys;
+    }
+
+    changeClip() {
+        //
     }
 
     update() {
         this.tick++;
 
         const keyBorad = this.word.keyBorad;
+        const changeDir = dir => {
+            if (this.direction !== dir) {
+                const col = ['top', 'bottom'];
+                const row = ['left', 'right'];
+                // 90度转向？
+                if (
+                    !(col.includes(this.direction) && col.includes(dir)) ||
+                    !(row.includes(this.direction) && row.includes(dir))
+                ) {
+                    // 没移动到指定位置禁止转向
+                    if (
+                        (col.includes(this.direction) && this.pos.y % 16 !== 0) ||
+                        (row.includes(this.direction) && this.pos.x % 16 !== 0)
+                    ) {
+                        return false;
+                    }
+                }
+                this.direction = dir;
+                this.changeClip();
+                return true;
+            }
+            return false;
+        };
+        let moving = false;
 
-        // if (keyBorad.hasKey(dir['top'])) {
-        // }
+        // 向上
+        if ((keyBorad.hasKey(87) && !this.deputy) || (keyBorad.hasKey(38) && this.deputy)) {
+            moving = true;
+            changeDir('top');
+        }
+
+        // 向下
+        if ((keyBorad.hasKey(83) && !this.deputy) || (keyBorad.hasKey(40) && this.deputy)) {
+            moving = true;
+            changeDir('bottom');
+        }
+
+        // 向左
+        if ((keyBorad.hasKey(65) && !this.deputy) || (keyBorad.hasKey(37) && this.deputy)) {
+            moving = true;
+            changeDir('left');
+        }
+
+        // 向右
+        if ((keyBorad.hasKey(68) && !this.deputy) || (keyBorad.hasKey(39) && this.deputy)) {
+            moving = true;
+            changeDir('right');
+        }
+
+        // 单发
+        if ((keyBorad.hasKey(71) && !this.deputy) || (keyBorad.hasKey(76) && this.deputy)) {
+            // 判断按键是否锁定
+            if (
+                (!keyBorad.hasBlock(71) && !this.deputy) ||
+                (!keyBorad.hasBlock(76) && this.deputy)
+            ) {
+                // 单发子弹发出之后按键锁定，抬起后取消锁定
+                if (this.shoot() && this.deputy) {
+                    keyBorad.addBlock(76);
+                } else {
+                    keyBorad.addBlock(71);
+                }
+            }
+        }
+
+        // 连发
+        if ((keyBorad.hasKey(72) && !this.deputy) || (keyBorad.hasKey(186) && this.deputy)) {
+            this.shoot();
+        }
+
+        // 暂停
+        if (keyBorad.hasKey(66)) {
+            this.word.game.pause = true;
+            KeyBorad.clear();
+        }
+
+        // 移动
+        if (moving) {
+            this.move();
+        } else {
+            if (this.pos.x % 16 !== 0 || this.pos.y % 16 !== 0) {
+                this.move();
+            }
+        }
     }
 }
 
@@ -771,9 +871,34 @@ class Word {
         t.shoot();
     }
 
+    // 绘制辅助线，开发辅助线
+    drawLins() {
+        // 保存绘制环境
+        this.ctx.save();
+        this.ctx.lineWidth = 1;
+        this.ctx.strokeStyle = '#60606005';
+
+        // 竖线
+        for (let i = 1; i < 26; i++) {
+            this.ctx.moveTo(i * 16, 0);
+            this.ctx.lineTo(i * 16, 416);
+        }
+
+        // 横线
+        for (let i = 0; i < 26; i++) {
+            this.ctx.moveTo(0, i * 16);
+            this.ctx.lineTo(416, i * 16);
+        }
+        this.ctx.stroke();
+        this.ctx.restore();
+    }
+
     render() {
         this.ctx.fillStyle = '#000';
         this.ctx.fillRect(0, 0, this.width, this.height);
+
+        // 绘制辅助线
+        this.drawLins();
 
         this.items.forEach(item => {
             item.update();
