@@ -444,7 +444,7 @@ class Player {
  * 用于存放游戏中的运行时参数
  */
 class Game {
-    async constructor(word) {
+    constructor(word) {
         this.word = word;
         this.word.game = this;
 
@@ -506,6 +506,14 @@ class Entity {
                 bottom: () => (this.pos.y += this.speed),
                 right: () => (this.pos.x += this.speed)
             };
+            this.tick++;
+            if (this.tick >= 10) {
+                this.tick = 0;
+                this.clipIndex = this.clipIndex === 1 ? 0 : 1;
+                if (this.changeClip instanceof Function) {
+                    this.changeClip();
+                }
+            }
             return dirs[this.direction]();
         }
     }
@@ -545,10 +553,19 @@ class Tank extends Entity {
         this.bulletNum = 1;
         this.bullets = new Set(); // 弹夹
         this.speed = 2; // 所有坦克的默认速度，不同坦克可以覆盖这个默认值
+        this.blockShoot = false; // 射击锁定，防止连续快速无间隔射击
+    }
+
+    setBlockShoot() {
+        this.blockShoot = true;
+        setTimeout(() => {
+            this.blockShoot = false;
+        }, 50);
     }
 
     shoot() {
-        if (this.bullets.size < this.bulletNum) {
+        if (this.bullets.size < this.bulletNum && !this.blockShoot) {
+            this.setBlockShoot();
             return new Bullet(this);
         }
     }
@@ -576,7 +593,6 @@ class EnemyTank extends Tank {
         this.level = (Math.random * 5) | 0;
         this.reward = Math.random() <= 0.2 ? Math.random() * 3 + 1 : 0;
         this.armor = this.level <= 4 ? 0 : 2;
-        this.isMoveing = false;
     }
 
     die() {
@@ -590,15 +606,20 @@ class EnemyTank extends Tank {
         this.word.items.delete(this);
     }
 
+    // ! 未完成
     changeClip() {
         const clip = { x: 0, y: 0 };
         const dirs = {
+            top: () => {},
             left: () => (clip.y = 6),
             right: () => (clip.y = 2),
-            buttom: () => (clip.y = 4)
+            bottom: () => (clip.y = 4)
         };
         dirs[this.direction]();
-        this.clipIndex === 1((clip.y += 1));
+
+        if (this.clipIndex === 1) {
+            clip.y += 1;
+        }
 
         if (this.level <= 3) {
             clip.x = (this.level - 1) * 2;
@@ -610,22 +631,16 @@ class EnemyTank extends Tank {
     }
 
     update() {
-        this.tick++;
-        this.shoot();
-
-        if (!this.isMoveing) {
-            const rand = Math.rand;
-            const dir = rand < 0.3 ? 'bottom' : rand < 0.55 ? 'left' : rand < 0.8 ? 'right' : 'top';
-
-            this.direction = dir;
-            return this.changeClip();
-        }
-
-        this.move();
-        if (this.tick >= 60) {
-            this.clipIndex = this.clipIndex === 1 ? 0 : 1;
-            this.changeClip();
-        }
+        // this.shoot();
+        // this.isMoveing = false;
+        // if (!this.isMoveing) {
+        //     const rand = Math.rand;
+        //     const dir = rand < 0.3 ? 'bottom' : rand < 0.55 ? 'left' : rand < 0.8 ? 'right' : 'top';
+        //     this.direction = dir;
+        //     return this.changeClip();
+        // }
+        // this.move();
+        // this.changeClip();
     }
 }
 
@@ -660,15 +675,37 @@ class AllyTank extends Tank {
         this.camp = 'ally';
         this.deputy = deputy;
         this.keys = deputy ? p2Keys : p1Keys;
+        this.bulletSpeed = 5;
+
+        // ! 临时设置
+        this.bulletNum = 3;
+
+        // 初始化属性
+        this.changeClip();
     }
 
     changeClip() {
-        //
+        const clip = { x: 0, y: 0 };
+        const dirs = {
+            top: () => {},
+            left: () => (clip.y = 6),
+            right: () => (clip.y = 2),
+            bottom: () => (clip.y = 4)
+        };
+
+        clip.x = clip.x + this.level - 1;
+        dirs[this.direction]();
+
+        if (this.clipIndex === 1) {
+            clip.y++;
+        }
+        if (this.deputy) {
+            clip.x += 4;
+        }
+        this.clip = { ...clip };
     }
 
     update() {
-        this.tick++;
-
         const keyBorad = this.word.keyBorad;
         const changeDir = dir => {
             if (this.direction !== dir) {
@@ -720,30 +757,34 @@ class AllyTank extends Tank {
         }
 
         // 单发
-        if ((keyBorad.hasKey(71) && !this.deputy) || (keyBorad.hasKey(76) && this.deputy)) {
+        if ((keyBorad.hasKey(74) && !this.deputy) || (keyBorad.hasKey(76) && this.deputy)) {
             // 判断按键是否锁定
             if (
-                (!keyBorad.hasBlock(71) && !this.deputy) ||
+                (!keyBorad.hasBlock(74) && !this.deputy) ||
                 (!keyBorad.hasBlock(76) && this.deputy)
             ) {
                 // 单发子弹发出之后按键锁定，抬起后取消锁定
-                if (this.shoot() && this.deputy) {
-                    keyBorad.addBlock(76);
-                } else {
-                    keyBorad.addBlock(71);
+                if (this.shoot()) {
+                    if (this.deputy) {
+                        keyBorad.addBlock(76);
+                    } else {
+                        keyBorad.addBlock(74);
+                    }
                 }
             }
         }
 
         // 连发
-        if ((keyBorad.hasKey(72) && !this.deputy) || (keyBorad.hasKey(186) && this.deputy)) {
+        if ((keyBorad.hasKey(75) && !this.deputy) || (keyBorad.hasKey(186) && this.deputy)) {
             this.shoot();
         }
 
         // 暂停
         if (keyBorad.hasKey(66)) {
+            if (keyBorad.hasBlock(66)) return;
             this.word.game.pause = true;
-            KeyBorad.clear();
+            keyBorad.clear();
+            keyBorad.addBlock(66);
         }
 
         // 移动
@@ -762,7 +803,18 @@ class AllyTank extends Tank {
  */
 class Bullet extends Entity {
     constructor(tank) {
-        super(tank.word, tank.word.image.images.tool, tank.pos, { x: 1, y: 0 });
+        const changeClip = dir => {
+            if (dir === 'top') {
+                return { x: 0, y: 0 };
+            } else if (dir === 'bottom') {
+                return { x: 2, y: 0 };
+            } else if (dir === 'left') {
+                return { x: 3, y: 0 };
+            } else if (dir === 'right') {
+                return { x: 1, y: 0 };
+            }
+        };
+        super(tank.word, tank.word.image.images.tool, tank.pos, changeClip(tank.direction));
         this.tank = tank;
         this.word = this.tank.word;
 
@@ -898,7 +950,7 @@ class Word {
         this.ctx.fillRect(0, 0, this.width, this.height);
 
         // 绘制辅助线
-        this.drawLins();
+        // this.drawLins();
 
         this.items.forEach(item => {
             item.update();
