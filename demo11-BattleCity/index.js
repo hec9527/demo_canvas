@@ -495,10 +495,13 @@ class Entity {
     }
 
     move() {
-        // const ifCanMove = Array.from(this.word.items).every(item => {
-        //     return !collisionDetectionNextTick(this, item);
-        // });
-        const ifCanMove = true;
+        const ifCanMove = Array.from(this.word.items).every(item => {
+            if (item !== this) {
+                return !collisionDetectionNextTick(this, item) || !collisionBorder(this, this.word);
+            }
+            return true;
+        });
+        //  ifCanMove = true;
         if (ifCanMove) {
             const dirs = {
                 top: () => (this.pos.y -= this.speed),
@@ -507,7 +510,7 @@ class Entity {
                 right: () => (this.pos.x += this.speed)
             };
             this.tick++;
-            if (this.tick >= 10) {
+            if (this.tick >= 5) {
                 this.tick = 0;
                 this.clipIndex = this.clipIndex === 1 ? 0 : 1;
                 if (this.changeClip instanceof Function) {
@@ -920,7 +923,7 @@ class Word {
 
         // !  测试数据
         window.t = new AllyTank(word);
-        t.shoot();
+        new AllyTank(word, true);
     }
 
     // 绘制辅助线，开发辅助线
