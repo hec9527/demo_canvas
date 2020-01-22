@@ -14,6 +14,20 @@
  *      1， 只有运动的物体才会调用碰撞检测，减少运算量
  *      2， 跳过没有体积碰撞的实体
  *
+ *       碰撞检测
+ *        1， 需要考虑阵营
+ *        2， 相同阵营也有碰撞检测
+ *
+ *
+ *
+ *   ! 存在的问题：
+ *       1， 碰撞检测的实现
+ *
+ *
+ *        准确的碰撞检测：
+ *        1， 当前帧是否发生碰撞
+ *        2， 下一帧是否发生碰撞
+ *        3， 在这一帧中，两者行进路径是否相交
  */
 
 // ------------------   工具函数--开始   --------------------------
@@ -37,7 +51,7 @@ function collisionDetectionNextTick(entity1, entity2) {
     }
 
     // 跳过不移动的物体
-    if ((entity1.speed === entity2.speed) === 0) {
+    if (entity1.speed === 0 && entity2.speed === 0) {
         return false;
     }
 
@@ -68,8 +82,8 @@ function collisionDetectionNextTick(entity1, entity2) {
     if (
         pos1.x <= pos2.x &&
         pos2.x <= pos1.x + entity1.width &&
-        pos1.y >= pos2.y + entity2.width &&
-        pos2.y + entity2.width >= pos1.y - entity1.width
+        pos1.y >= pos2.y &&
+        pos2.y + entity2.width >= pos1.y
     ) {
         return true;
     }
@@ -219,7 +233,7 @@ class Print {
             padding:0px 184px; line-height:136px;margin: 15px calc(50% - 184px);`
         );
         console.log(
-            `%c@author: hec9527\n@time:   2020-1-5\n@description: \n\n\thi，你好程序员，这是我无聊时写的一个小游戏，主要是为了向经典致敬，其中很多实现方式可能不是很科学合理，或许有更好的实现方法。我知道，那些肯定都会有的，所以这个项目需要更多人来不断优化迭代它，让它能成为一个可以作为新手学习的项目，就像"hello world"或者"图书管理系统"一样，在rookie中发光发热。\n\t如果你在使用过程中发现有任何bug，或者优化建议，可以直接发送到我的邮箱:\thec9526@foxmail.com\n\n`,
+            `%c@author: hec9527\n@time:   2020-1-5\n@description: \n\n\thi，你好程序员，这是我无聊时写的一个小游戏，主要是为了向经典致敬，其中很多实现方式可能不是很科学合理，或许有更好的实现方法。我知道，那些肯定都会有的，所以这个项目需要更多人来不断优化迭代它，让它能成为一个可以作为新手学习的项目，就像"hello world"或者"图书管理系统"一样，在rookie中发光发热。\n\t如果你在使用过程中发现有任何bug，或者优化建议，可以直接发送到我的邮箱:\thec9527@foxmail.com\n\n`,
             'color:red'
         );
     }
@@ -517,7 +531,10 @@ class Entity {
                     this.changeClip();
                 }
             }
-            return dirs[this.direction]();
+            if (this.collisionDetection instanceof Function) {
+                if (this.collisionDetection()) return;
+            }
+            dirs[this.direction]();
         }
     }
 
@@ -708,6 +725,26 @@ class AllyTank extends Tank {
         this.clip = { ...clip };
     }
 
+    // 坦克的碰撞检测
+    collisionDetection() {
+        let detection = false;
+
+        if (collisionBorder(this, this.word)) {
+            detection = true;
+            return true;
+        }
+
+        Array.from(this.word.items).some(item => {
+            if (item === this) return false;
+            if (collisionDetectionNextTick(this, item)) {
+                detection = true;
+                return true;
+            }
+        });
+
+        return detection;
+    }
+
     update() {
         const keyBorad = this.word.keyBorad;
         const changeDir = dir => {
@@ -848,26 +885,34 @@ class Bullet extends Entity {
         this.tank.bullets.delete(this);
     }
 
+    // 子弹碰撞之后立即销毁
     collisionDetection() {
-        //  触碰边界子弹死亡
+        let detection = false;
+
         if (collisionBorder(this, this.word)) {
-            return this.die();
+            this.die();
+            detection = true;
         }
 
         // 逐个检测是否碰撞
-        this.word.items.forEach(item => {
-            if (collisionDetectionThisTick(this, item)) {
-                if (this.camp !== item.camp) {
+        Array.from(this.word.items).some(item => {
+            if (item === this) return false;
+            if (collisionDetectionNextTick(this, item)) {
+                // 子弹遇到其他阵营实体或者 遇到子弹，两者都销毁
+                if (this.camp !== item.camp || item instanceof Bullet) {
                     this.die();
                     item.die();
+                    detection = true;
+                    return true;
                 }
             }
         });
+
+        return detection;
     }
 
     update() {
         this.move();
-        this.collisionDetection();
     }
 }
 

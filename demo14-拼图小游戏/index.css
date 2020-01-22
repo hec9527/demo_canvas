@@ -1,0 +1,173 @@
+* {
+    padding: 0;
+    margin: 0;
+    user-select: none;
+    font-family: 'CODE-Bold PingFang Sc, MicroSoft YaHei, Segoe UI', Tahoma, Geneva, Verdana,
+        sans-serif;
+}
+
+html,
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+body {
+    background: url(../bilibili.jpg);
+    background-position: center;
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.glass {
+    backdrop-filter: blur(20px);
+}
+
+.glass::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+#continer {
+    overflow: hidden;
+    width: 900px;
+    height: 600px;
+    border: 1px solid rgba(117, 115, 115, 0.294);
+    border-radius: 15px;
+    display: flex;
+    flex-direction: row;
+}
+
+#gameBox {
+    width: 600px;
+    height: 600px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#canvas {
+    background: #00000010;
+}
+
+#wall {
+    width: 1px;
+    height: 100%;
+    background: rgba(117, 115, 115, 0.3);
+}
+
+#mesBox {
+    width: 300px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.title {
+    text-align: center;
+    margin: 15px 0 25px 0;
+    font-size: 25px;
+}
+
+.group {
+    width: 70%;
+    font-size: 14px;
+    color: #54546c;
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    text-align: center;
+}
+
+.btn {
+    background: rgb(0, 116, 211);
+    color: #fff;
+    border-radius: 15px;
+    padding: 7px 0;
+    margin: 15px 0 0 0;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: rgba(0, 146, 231, 0.877);
+}
+
+.img-select-cover,
+.img-select {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.img-select-cover {
+    /* 默认值 */
+    background: #fff;
+    display: none;
+}
+
+.img-select {
+    overflow-y: auto;
+    backdrop-filter: blur(10px);
+}
+
+.select-box {
+    float: left;
+    position: relative;
+    margin: 15px 0 0 20px;
+    width: 200px;
+    height: 200px;
+    border-radius: 15px;
+    cursor: pointer;
+    background: #6f6f6f30;
+    transition: 0.3s all ease-in;
+}
+
+.select-box:hover i,
+.select-box i:hover {
+    animation-name: zoom;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+    animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.select-box i {
+    width: 100%;
+    height: 100%;
+    line-height: 200px;
+    text-align: center;
+    color: #ffffffa0;
+    opacity: 0;
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+#copyRight {
+    position: absolute;
+    color: #e3dede;
+    right: 15px;
+    bottom: 7px;
+    font-size: 12px;
+}
+
+@keyframes zoom {
+    from {
+        opacity: 0;
+        font-size: 120px;
+    }
+    to {
+        opacity: 1;
+        font-size: 75px;
+    }
+}
