@@ -37,6 +37,7 @@ body {
 }
 
 #continer {
+    position: relative;
     overflow: hidden;
     width: 900px;
     height: 600px;
@@ -96,7 +97,7 @@ body {
     background: rgb(0, 116, 211);
     color: #fff;
     border-radius: 15px;
-    padding: 7px 0;
+    padding: 7px 25px;
     margin: 15px 0 0 0;
     cursor: pointer;
 }
@@ -105,9 +106,14 @@ body {
     background: rgba(0, 146, 231, 0.877);
 }
 
+.option,
 .img-select-cover,
 .img-select {
+    background-size: cover !important;
+    background-position: center !important;
     position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
 }
@@ -115,6 +121,9 @@ body {
 .img-select-cover {
     /* 默认值 */
     background: #fff;
+}
+
+.hide {
     display: none;
 }
 
@@ -130,6 +139,8 @@ body {
     width: 200px;
     height: 200px;
     border-radius: 15px;
+    background-size: cover !important;
+    background-position: center !important;
     cursor: pointer;
     background: #6f6f6f30;
     transition: 0.3s all ease-in;
@@ -150,7 +161,34 @@ body {
     text-align: center;
     color: #ffffffa0;
     opacity: 0;
-    background-color: rgba(255, 255, 255, 0.4);
+    background-color: rgba(104, 104, 104, 0.4);
+}
+
+.tooltip {
+    position: absolute;
+    margin: 50%;
+    transform: translate(-50%, -120%);
+    width: 400px;
+    height: 220px;
+    border-radius: 15px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.tooltip .content {
+    box-sizing: border-box;
+    height: 180px;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.tooltip .close {
+    border-top: 1px solid #ccc7;
+    cursor: pointer;
+    height: 40px;
+    font-size: 20px;
+    line-height: 40px;
+    text-align: center;
 }
 
 #copyRight {
