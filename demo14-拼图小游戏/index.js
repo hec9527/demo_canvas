@@ -1,4 +1,23 @@
 /**
+ * @author      hec9527
+ * @time        2020-1-22
+ * @change      2920-1-23
+ * @description
+ *    拼图小游戏
+ *        基于canvas制作
+ *        随机打乱顺序，采用洗牌算法，公平公正迅速
+ *        采用逆序算法，确保每次生成的随机序列都有解
+ *
+ *
+ *       后期修正：
+ *
+ *          1，  动画效果
+ *          2，  bug调试
+ *          3，  代码优化/重构
+ *          4，  试玩
+ */
+
+/**
  * 拼图
  */
 class Pintu {
@@ -16,10 +35,12 @@ class Pintu {
             wraperBg: document.getElementsByClassName('img-select-cover')[0],
             wraperLv: document.getElementsByClassName('level-change')[0],
             closeLv: document.getElementsByClassName('level-close')[0],
+            range: document.getElementsByClassName('level-value')[0],
             setLv: document.getElementsByClassName('level-set')[0],
             wraperTip: document.getElementsByClassName('tooltip')[0],
             toolTip: document.getElementsByClassName('tip content')[0],
-            toolOk: document.getElementsByClassName('tip close')[0]
+            toolOk: document.getElementsByClassName('tip close')[0],
+            steps: document.getElementsByClassName('steps')[0]
         };
 
         // arguments
@@ -28,8 +49,13 @@ class Pintu {
             currentImg: '',
             level: 1,
             levelMin: 1,
-            levelMax: 7
+            levelMax: 7,
+            levelOption: 1,
+            scope: 0
         };
+
+        // 备份
+        this.argsBack = Object.assign({}, this.args);
 
         // imgs ， optional image src ，it mabey come from website or localhost
         this.imgs = [
@@ -41,25 +67,33 @@ class Pintu {
         ];
 
         // add event listener
+        // 开始游戏
         this.els.begin.addEventListener('click', e => {
-            console.log(1);
+            this.els.begin.innerHTML = '重新开始';
+            this.args = Object.assign({}, this.argsBack);
+            this.init();
         });
+        // 修改游戏难度
         this.els.level.addEventListener('click', e => {
             this.els.wraperLv.classList.remove('hide');
         });
+        // 修改背景图
         this.els.change.addEventListener('click', e => {
             this.setBackgroundImages();
             this.els.wraperBg.classList.remove('hide');
         });
+        // 历史最高
         this.els.history.addEventListener('click', e => {
             console.log(4);
         });
+        // 鼠标悬浮预览
         this.els.wraper.addEventListener('mouseover', e => {
             const src = e.target.offsetParent.getAttribute('data-src');
             if (src) {
                 this.setBackgroundImages(src);
             }
         });
+        // 修改背景框的图片src
         this.els.wraper.addEventListener('click', e => {
             const src = e.target.offsetParent.getAttribute('data-src');
             if (src) {
@@ -68,15 +102,26 @@ class Pintu {
                 this.els.wraperBg.classList.add('hide');
             }
         });
+        // 设置难度等级的界面
         this.els.setLv.addEventListener('click', e => {
-            console.log('set level');
-        });
-        this.els.closeLv.addEventListener('click', e => {
+            this.flushLevel();
+            this.args.level = this.args.levelOption;
             this.els.wraperLv.classList.add('hide');
         });
-
+        this.els.closeLv.addEventListener('click', e => {
+            this.args.levelOption = 1;
+            this.els.wraperLv.classList.add('hide');
+        });
+        // 提示信息框
         this.els.toolOk.addEventListener('click', e => {
             this.els.wraperTip.classList.add('hide');
+        });
+        // 难度变动
+        this.els.range.addEventListener('change', e => {
+            const value = parseInt(e.target.value);
+            this.els.range.title = value;
+            this.args.levelOption = value;
+            this.flushLevel();
         });
 
         // call it
@@ -89,6 +134,7 @@ class Pintu {
         this.args.currentImg = this.imgs[0];
         this.initElement();
         this.setBackgroundImages();
+        this.flushLevel();
         // this.newTips('hello world');
     }
 

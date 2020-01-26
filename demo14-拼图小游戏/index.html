@@ -4,8 +4,8 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-        <title>BATTLE CITY</title>
         <link rel="stylesheet" href="./font-awesome-4.7.0/css/font-awesome.min.css" />
+        <title>拼图小游戏</title>
         <link rel="stylesheet" href="./index.css" />
     </head>
 
@@ -17,6 +17,7 @@
             <div id="wall"></div>
             <div id="mesBox">
                 <h3 class="title">拼图小游戏</h3>
+                <div>步数：<span class="steps">0</span></div>
                 <div class="group">
                     <div class="flex-col">
                         <div class="btn begin">开始游戏</div>
@@ -40,11 +41,28 @@
             </div>
 
             <!-- 难度选择框 -->
-            <div class="option level-change hide">
-                <!--  -->
-                <p>这里选择游戏难度</p>
-                <span class="operater btn level-set"><i class="fa fa-check"></i></span>
-                <span class="operater btn level-close"><i class="fa fa-close"></i></span>
+            <div class="option level-change">
+                <p>请选择游戏难度</p>
+                <canvas class="canvas-level"></canvas>
+                <div>
+                    <span>
+                        <input
+                            class="level-value"
+                            type="range"
+                            title="1"
+                            step="1"
+                            min="1"
+                            max="7"
+                            value="1"
+                        />
+                    </span>
+                    <span class="operater btn level-set">
+                        <i class="fa fa-check"></i>
+                    </span>
+                    <span class="operater btn level-close">
+                        <i class="fa fa-close"></i>
+                    </span>
+                </div>
             </div>
 
             <!-- 提示框 -->
