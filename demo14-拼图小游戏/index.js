@@ -113,6 +113,7 @@ class Pintu {
     }
 
     initElement() {
+        this.els.wraper.innerHTML = '';
         this.imgs.forEach(item => {
             const el = document.createElement('img');
             el.onload = () => {
