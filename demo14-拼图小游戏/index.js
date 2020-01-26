@@ -92,6 +92,43 @@ class Pintu {
         // this.newTips('hello world');
     }
 
+    flushLevel() {
+        const canvas = document.getElementsByClassName('canvas-level')[0];
+        const ctx = canvas.getContext('2d');
+        const el = document.createElement('img');
+        const canvas_w = (canvas.width = canvas.offsetWidth);
+        const canvas_h = (canvas.height = canvas.offsetHeight);
+
+        el.onload = () => {
+            const img_w = el.width;
+            const img_h = el.height;
+            const left = (canvas_w - img_w) / 2;
+            const top = (canvas_h - img_h) / 2;
+            const level = this.args.levelOption + 2;
+
+            // 清除绘制区域
+            canvas.width = canvas.width;
+
+            // 居中绘制图片
+            ctx.save();
+            ctx.strokeStyle = '#fff';
+            ctx.drawImage(el, 0, 0, img_w, img_h, left, top, img_w, img_h);
+
+            // 绘制边界线
+            for (let i = 1; i < level; i++) {
+                ctx.beginPath();
+                ctx.moveTo(0, (canvas_h / level) * i);
+                ctx.lineTo(canvas_w, (canvas_h / level) * i);
+                ctx.moveTo((canvas_w / level) * i, 0);
+                ctx.lineTo((canvas_w / level) * i, canvas_h);
+                ctx.closePath();
+                ctx.stroke();
+            }
+            ctx.restore();
+        };
+        el.src = this.args.currentImg;
+    }
+
     getLocalRecored() {
         const result = localStorage.getItem('history');
         if (result) {
