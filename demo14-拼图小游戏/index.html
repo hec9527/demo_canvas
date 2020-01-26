@@ -10,13 +10,13 @@
     </head>
 
     <body>
-        <div id="continer" class="glass">
-            <div id="gameBox">
-                <canvas id="canvas" width="516" height="456"></canvas>
+        <div id="container" class="glass">
+            <div id="gameBox" class="flex-center">
+                <canvas id="canvas" class="canvas" width="516" height="456"></canvas>
             </div>
             <div id="wall"></div>
-            <div id="mesBox">
-                <h3 class="title">拼图小游戏</h3>
+            <div id="mesBox" class="flex-center">
+                <h3 class="msg-title">拼图小游戏</h3>
                 <div>步数：<span class="steps">0</span></div>
                 <div class="group">
                     <div class="flex-col">
@@ -34,16 +34,16 @@
             </div>
 
             <!-- 图片选择框 -->
-            <div class="option img-select-cover hide">
-                <div class="img-select">
+            <div class="option wraper-image hide">
+                <div class="glass-bg">
                     <!-- injected by javascript -->
                 </div>
             </div>
 
             <!-- 难度选择框 -->
-            <div class="option level-change">
+            <div class="option wraper-level hide">
                 <p>请选择游戏难度</p>
-                <canvas class="canvas-level"></canvas>
+                <canvas class="canvas canvas-level"></canvas>
                 <div>
                     <span>
                         <input
@@ -57,22 +57,25 @@
                         />
                     </span>
                     <span class="operater btn level-set">
-                        <i class="fa fa-check"></i>
+                        <i class="fa fa-check level-set"></i>
                     </span>
                     <span class="operater btn level-close">
-                        <i class="fa fa-close"></i>
+                        <i class="fa fa-close level-close"></i>
                     </span>
                 </div>
             </div>
 
             <!-- 提示框 -->
-            <div class="tooltip hide">
-                <div class="tip content">
-                    Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quasi ipsum illo
-                    dignissimos qui maiores nemo vero nam necessitatibus, commodi cumque, itaque,
-                    exercitationem eligendi vitae. Laborum nemo suscipit laboriosam distinctio odio?
+            <div class="option wraper-tooltip flex-center hide">
+                <div class="tooltip slideIn">
+                    <div class="tip tip-content">
+                        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quasi ipsum illo
+                        dignissimos qui maiores nemo vero nam necessitatibus, commodi cumque,
+                        itaque, exercitationem eligendi vitae. Laborum nemo suscipit laboriosam
+                        distinctio odio?
+                    </div>
+                    <div class="tip tip-close">确定</div>
                 </div>
-                <div class="tip close">确定</div>
             </div>
         </div>
 

@@ -11,6 +11,7 @@
  *
  *       后期修正：
  *
+ *          0，  图片的cover模式
  *          1，  动画效果
  *          2，  bug调试
  *          3，  代码优化/重构
@@ -24,24 +25,6 @@ class Pintu {
     constructor() {
         this.canvas = document.getElementById('canvas');
         this.ctx = this.canvas.getContext('2d');
-
-        // el
-        this.els = {
-            begin: document.getElementsByClassName('begin')[0],
-            level: document.getElementsByClassName('level')[0],
-            change: document.getElementsByClassName('change')[0],
-            history: document.getElementsByClassName('history')[0],
-            wraper: document.getElementsByClassName('img-select')[0],
-            wraperBg: document.getElementsByClassName('img-select-cover')[0],
-            wraperLv: document.getElementsByClassName('level-change')[0],
-            closeLv: document.getElementsByClassName('level-close')[0],
-            range: document.getElementsByClassName('level-value')[0],
-            setLv: document.getElementsByClassName('level-set')[0],
-            wraperTip: document.getElementsByClassName('tooltip')[0],
-            toolTip: document.getElementsByClassName('tip content')[0],
-            toolOk: document.getElementsByClassName('tip close')[0],
-            steps: document.getElementsByClassName('steps')[0]
-        };
 
         // arguments
         this.args = {
@@ -66,61 +49,66 @@ class Pintu {
             './images/4.jpg'
         ];
 
-        // add event listener
-        // 开始游戏
-        this.els.begin.addEventListener('click', e => {
-            this.els.begin.innerHTML = '重新开始';
-            this.args = Object.assign({}, this.argsBack);
-            this.init();
+        // 事件委托
+        document.getElementById('container').addEventListener('click', e => {
+            console.log(e.target.classList);
+
+            if (e.target.classList.contains('begin')) {
+                // 开始游戏
+                e.target.innerHTML = '重新开始';
+                this.args = Object.assign({}, this.argsBack);
+                this.init();
+            } else if (e.target.classList.contains('level')) {
+                // 设置难度
+                document.getElementsByClassName('wraper-level')[0].classList.remove('hide');
+                this.flushLevel();
+            } else if (e.target.classList.contains('change')) {
+                // 修改使用的图片
+                this.setBackgroundImages();
+                document.getElementsByClassName('wraper-image')[0].classList.remove('hide');
+            } else if (e.target.classList.contains('history')) {
+                // 历史记录
+                console.log(4);
+            } else if (
+                e.target.classList.contains('level-set') ||
+                e.target.offsetParent.classList.contains('level-set')
+            ) {
+                // 设置当前的等级
+                this.args.level = this.args.levelOption;
+                document.getElementsByClassName('wraper-level')[0].classList.add('hide');
+            } else if (
+                e.target.classList.contains('select-box') ||
+                e.target.offsetParent.classList.contains('select-box')
+            ) {
+                // 设置当前使用的图片
+                const src = e.target.offsetParent.getAttribute('data-src');
+                if (src) {
+                    this.args.currentImg = src;
+                    this.setBackgroundImages();
+                    document.getElementsByClassName('wraper-image')[0].classList.add('hide');
+                }
+            } else if (e.target.classList.contains('level-close')) {
+                // 关闭难度设置界面
+                this.args.levelOption = 1;
+                document.getElementsByClassName('wraper-level')[0].classList.add('hide');
+            } else if (e.target.classList.contains('tip-close')) {
+                // 关闭消息提示界面
+                document.getElementsByClassName('wraper-tooltip')[0].classList.add('hide');
+            }
         });
-        // 修改游戏难度
-        this.els.level.addEventListener('click', e => {
-            this.els.wraperLv.classList.remove('hide');
-        });
-        // 修改背景图
-        this.els.change.addEventListener('click', e => {
-            this.setBackgroundImages();
-            this.els.wraperBg.classList.remove('hide');
-        });
-        // 历史最高
-        this.els.history.addEventListener('click', e => {
-            console.log(4);
-        });
-        // 鼠标悬浮预览
-        this.els.wraper.addEventListener('mouseover', e => {
+
+        // 预览当前使用的图片
+        document.getElementsByClassName('glass-bg')[0].addEventListener('mouseover', e => {
             const src = e.target.offsetParent.getAttribute('data-src');
             if (src) {
                 this.setBackgroundImages(src);
             }
         });
-        // 修改背景框的图片src
-        this.els.wraper.addEventListener('click', e => {
-            const src = e.target.offsetParent.getAttribute('data-src');
-            if (src) {
-                this.args.currentImg = src;
-                this.setBackgroundImages();
-                this.els.wraperBg.classList.add('hide');
-            }
-        });
-        // 设置难度等级的界面
-        this.els.setLv.addEventListener('click', e => {
-            this.flushLevel();
-            this.args.level = this.args.levelOption;
-            this.els.wraperLv.classList.add('hide');
-        });
-        this.els.closeLv.addEventListener('click', e => {
-            this.args.levelOption = 1;
-            this.els.wraperLv.classList.add('hide');
-        });
-        // 提示信息框
-        this.els.toolOk.addEventListener('click', e => {
-            this.els.wraperTip.classList.add('hide');
-        });
+
         // 难度变动
-        this.els.range.addEventListener('change', e => {
+        document.getElementsByClassName('level-value')[0].addEventListener('change', e => {
             const value = parseInt(e.target.value);
-            this.els.range.title = value;
-            this.args.levelOption = value;
+            e.target.title = this.args.levelOption = value;
             this.flushLevel();
         });
 
@@ -128,6 +116,7 @@ class Pintu {
         this.init();
         this.resize();
         this.render();
+        this.newTips('hello wrold');
     }
 
     init() {
@@ -135,7 +124,6 @@ class Pintu {
         this.initElement();
         this.setBackgroundImages();
         this.flushLevel();
-        // this.newTips('hello world');
     }
 
     flushLevel() {
@@ -191,12 +179,12 @@ class Pintu {
     }
 
     newTips(msg) {
-        this.els.toolTip.innerHTML = msg;
-        this.els.wraperTip.classList.remove('hide');
+        document.getElementsByClassName('tip-content')[0].innerHTML = msg;
+        document.getElementsByClassName('wraper-tooltip')[0].classList.remove('hide');
     }
 
     initElement() {
-        this.els.wraper.innerHTML = '';
+        document.getElementsByClassName('glass-bg')[0].innerHTML = '';
         this.imgs.forEach(item => {
             const el = document.createElement('img');
             el.onload = () => {
@@ -205,14 +193,14 @@ class Pintu {
                 node.setAttribute('data-src', item);
                 node.style = `background-image: url(${item})`;
                 node.innerHTML = '<i class="fa fa-check"></i></div>';
-                this.els.wraper.appendChild(node);
+                document.getElementsByClassName('glass-bg')[0].appendChild(node);
             };
             el.src = item;
         });
     }
 
     setBackgroundImages(bg = this.args.currentImg) {
-        this.els.wraperBg.style = `background-image: url(${bg})`;
+        document.getElementsByClassName('wraper-image')[0].style = `background-image: url(${bg})`;
     }
 
     resize() {
@@ -224,7 +212,6 @@ class Pintu {
         this.canvas.width = this.width;
 
         // 更新
-
         window.requestAnimationFrame(() => this.render());
     }
 }
