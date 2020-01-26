@@ -104,7 +104,7 @@ class Pintu {
     }
 
     setLocalRecored(rec) {
-        localStorage.setItem('history', JSON.stringify(res));
+        localStorage.setItem('history', rec instanceof Object ? JSON.stringify(res) : rec);
     }
 
     newTips(msg) {
