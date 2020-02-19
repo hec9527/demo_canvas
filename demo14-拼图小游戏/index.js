@@ -51,11 +51,8 @@ class Pintu {
 
         // 事件委托
         document.getElementById('container').addEventListener('click', e => {
-            console.log(e.target.classList);
-
             if (e.target.classList.contains('begin')) {
                 // 开始游戏
-                e.target.innerHTML = '重新开始';
                 this.args = Object.assign({}, this.argsBack);
                 this.init();
             } else if (e.target.classList.contains('level')) {
@@ -76,6 +73,7 @@ class Pintu {
                 // 设置当前的等级
                 this.args.level = this.args.levelOption;
                 document.getElementsByClassName('wraper-level')[0].classList.add('hide');
+                this.newTips(`当前难度等级为 ${this.args.level}`, 1500);
             } else if (
                 e.target.classList.contains('select-box') ||
                 e.target.offsetParent.classList.contains('select-box')
@@ -93,7 +91,8 @@ class Pintu {
                 document.getElementsByClassName('wraper-level')[0].classList.add('hide');
             } else if (e.target.classList.contains('tip-close')) {
                 // 关闭消息提示界面
-                document.getElementsByClassName('wraper-tooltip')[0].classList.add('hide');
+                const el = document.getElementsByClassName('wraper-tooltip')[0];
+                el.classList.add('hide');
             }
         });
 
@@ -106,7 +105,7 @@ class Pintu {
         });
 
         // 难度变动
-        document.getElementsByClassName('level-value')[0].addEventListener('change', e => {
+        document.getElementsByClassName('level-value')[0].addEventListener('input', e => {
             const value = parseInt(e.target.value);
             e.target.title = this.args.levelOption = value;
             this.flushLevel();
@@ -116,7 +115,7 @@ class Pintu {
         this.init();
         this.resize();
         this.render();
-        this.newTips('hello wrold');
+        this.newTips('部分素材需要联网获取，并确保网络畅通', 3000);
     }
 
     init() {
@@ -124,6 +123,21 @@ class Pintu {
         this.initElement();
         this.setBackgroundImages();
         this.flushLevel();
+    }
+
+    // cover 剪切图片
+    clipImage(img, cover) {
+        const img_w = img.width;
+        const img_h = img.height;
+        const cover_w = cover.offsetWidth;
+        const cover_h = cover.offsetHeight;
+        // 长宽比
+        const img_ratio = img_w / img_h;
+        const cover_ratio = cover_w / cover_h;
+    }
+
+    sortIt(arr) {
+        //
     }
 
     flushLevel() {
@@ -178,9 +192,15 @@ class Pintu {
         localStorage.setItem('history', rec instanceof Object ? JSON.stringify(res) : rec);
     }
 
-    newTips(msg) {
+    newTips(msg, num) {
         document.getElementsByClassName('tip-content')[0].innerHTML = msg;
         document.getElementsByClassName('wraper-tooltip')[0].classList.remove('hide');
+        if (typeof num === 'number') {
+            setTimeout(
+                () => document.getElementsByClassName('wraper-tooltip')[0].classList.add('hide'),
+                num
+            );
+        }
     }
 
     initElement() {

@@ -114,6 +114,7 @@ body {
     background-size: cover !important;
     background-position: center !important;
     backdrop-filter: blur(10px);
+    animation: fadein 0.3s linear forwards;
     position: absolute;
     width: 100%;
     height: 100%;
@@ -121,12 +122,12 @@ body {
 
 .glass-bg {
     overflow-y: auto;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(15px);
 }
 
 .option {
     background: #ffffff;
-    animation: fadein 0.3s linear forwards;
+    transition: all 0.3s linear;
 }
 
 .hide {
@@ -145,6 +146,7 @@ body {
     cursor: pointer;
     background: #6f6f6f30;
     transition: 0.3s all ease-in;
+    overflow: hidden;
 }
 
 .select-box:hover i,
@@ -232,24 +234,6 @@ body {
     }
     to {
         opacity: 1;
-    }
-}
-
-@keyframes fadeout {
-    from {
-        opacity: 1;
-    }
-    to {
-        opacity: 0.3;
-    }
-}
-
-@keyframes transin {
-    from {
-        /*  */
-    }
-    to {
-        /*  */
     }
 }
 
