@@ -115,7 +115,7 @@ class Pintu {
         this.init();
         this.resize();
         this.render();
-        this.newTips('部分素材需要联网获取，并确保网络畅通', 3000);
+        // this.newTips('部分素材需要联网获取，并确保网络畅通', 3000);
     }
 
     init() {
@@ -141,6 +141,7 @@ class Pintu {
     }
 
     flushLevel() {
+        return false;
         const canvas = document.getElementsByClassName('canvas-level')[0];
         const ctx = canvas.getContext('2d');
         const el = document.createElement('img');
@@ -228,12 +229,13 @@ class Pintu {
         this.height = this.canvas.height = this.canvas.offsetHeight;
     }
 
-    render() {
-        this.canvas.width = this.width;
+    render() {}
+    // render() {
+    //     this.canvas.width = this.width;
 
-        // 更新
-        window.requestAnimationFrame(() => this.render());
-    }
+    //     // 更新
+    //     window.requestAnimationFrame(() => this.render());
+    // }
 }
 
 const tutu = new Pintu();

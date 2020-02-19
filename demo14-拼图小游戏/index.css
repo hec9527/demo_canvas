@@ -79,7 +79,7 @@ body {
 
 .msg-title {
     text-align: center;
-    margin: 15px 0 25px 0;
+    margin: 0 0 35px 0;
     font-size: 25px;
 }
 
@@ -167,6 +167,39 @@ body {
     background-color: rgba(104, 104, 104, 0.4);
 }
 
+.option.wraper-level {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.option.wraper-level .right-side {
+    width: 300px;
+    height: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.col-item {
+    height: 34px;
+    margin-top: 15px;
+}
+
+.canvas-level {
+    background: #ccc;
+    width: 600px;
+    height: 600px;
+}
+
+.option.wraper-tooltip {
+    background: #ffffffa0;
+    backdrop-filter: blur(0);
+}
+
 .tooltip {
     position: absolute;
     width: 400px;
@@ -190,18 +223,6 @@ body {
     font-size: 20px;
     line-height: 40px;
     text-align: center;
-}
-
-.option.wraper-level {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    align-items: center;
-}
-
-.option.wraper-tooltip {
-    background: #ffffffa0;
-    backdrop-filter: blur(0);
 }
 
 #copyRight {

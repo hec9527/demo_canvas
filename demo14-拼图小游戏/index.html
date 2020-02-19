@@ -12,7 +12,7 @@
     <body>
         <div id="container" class="glass">
             <div id="gameBox" class="flex-center">
-                <canvas id="canvas" class="canvas" width="516" height="456"></canvas>
+                <canvas id="canvas" class="canvas" width="500" height="500"></canvas>
             </div>
             <div id="wall"></div>
             <div id="mesBox" class="flex-center">
@@ -27,9 +27,39 @@
                     </div>
                 </div>
             </div>
-            <div id="copyRight">
-                <div id="myLoge">
-                    DISIGN BY HEC9527
+
+            <!-- 难度选择框 -->
+            <div class="option wraper-level ">
+                <canvas class="canvas canvas-level" width="500" height="500"></canvas>
+                <div class="right-side flex-center">
+                    <h3 class="msg-title">游戏难度</h3>
+                    <div class="group">
+                        <div class="flex-col">
+                            <div class="col-item" style="color:#888;font-size:12px;">
+                                <span>当前难度等级：</span>
+                                <span id="game-level">1</span>
+                            </div>
+                            <div class="col-item">
+                                <input
+                                    class="level-value"
+                                    type="range"
+                                    title="1"
+                                    step="1"
+                                    min="1"
+                                    max="7"
+                                    value="1"
+                                />
+                            </div>
+                            <div>
+                                <div class="operater btn level-set">
+                                    <i class="fa fa-check level-set"></i> &nbsp;确认
+                                </div>
+                                <div class="operater btn level-close">
+                                    <i class="fa fa-close level-close"></i> &nbsp;取消
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -37,31 +67,6 @@
             <div class="option wraper-image hide">
                 <div class="glass-bg">
                     <!-- injected by javascript -->
-                </div>
-            </div>
-
-            <!-- 难度选择框 -->
-            <div class="option wraper-level hide">
-                <p>请选择游戏难度</p>
-                <canvas class="canvas canvas-level"></canvas>
-                <div>
-                    <span>
-                        <input
-                            class="level-value"
-                            type="range"
-                            title="1"
-                            step="1"
-                            min="1"
-                            max="7"
-                            value="1"
-                        />
-                    </span>
-                    <span class="operater btn level-set">
-                        <i class="fa fa-check level-set"></i>
-                    </span>
-                    <span class="operater btn level-close">
-                        <i class="fa fa-close level-close"></i>
-                    </span>
                 </div>
             </div>
 
@@ -75,6 +80,12 @@
                         distinctio odio?
                     </div>
                     <div class="tip tip-close">确定</div>
+                </div>
+            </div>
+
+            <div id="copyRight">
+                <div id="myLoge">
+                    DISIGN BY HEC9527
                 </div>
             </div>
         </div>
