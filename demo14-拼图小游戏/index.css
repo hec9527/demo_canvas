@@ -1,9 +1,10 @@
+/* 基础属性  --- 开始  */
 * {
     padding: 0;
     margin: 0;
     user-select: none;
-    font-family: 'CODE-Bold PingFang Sc, MicroSoft YaHei, Segoe UI', Tahoma, Geneva, Verdana,
-        sans-serif;
+    box-sizing: border-box;
+    font-family: 'CODE-Bold PingFang Sc, MicroSoft YaHei, Segoe UI', sans-serif;
 }
 
 html,
@@ -19,74 +20,37 @@ body {
     background-size: cover;
 }
 
-.flex-center,
-body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+canvas {
+    background: #00000020;
+    width: 600px;
+    height: 600px;
 }
 
-.glass {
-    backdrop-filter: blur(20px);
-}
+/* 基础属性  ---  结束 */
 
+/* 通用样式   --  开始 */
+.glass::after,
 .glass::before {
     content: '';
     position: absolute;
-    z-index: -1;
-    display: block;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.3);
+    top: 0;
+    left: 0;
+}
+.glass::after {
+    z-index: -2;
+    backdrop-filter: blur(15px);
+}
+.glass::before {
+    z-index: -1;
+    background: #0001;
 }
 
-#container {
-    position: relative;
-    overflow: hidden;
-    width: 900px;
-    height: 600px;
-    border: 1px solid rgba(117, 115, 115, 0.294);
-    border-radius: 15px;
+.flex-center {
     display: flex;
-    flex-direction: row;
-}
-
-#gameBox {
-    width: 600px;
-    height: 600px;
-}
-
-.canvas {
-    background: #00000010;
-}
-
-.canvas-level {
-    width: 600px;
-    height: 400px;
-}
-
-#wall {
-    width: 1px;
-    height: 100%;
-    background: rgba(117, 115, 115, 0.3);
-}
-
-#mesBox {
-    width: 300px;
-    height: 100%;
-    flex-direction: column;
-}
-
-.msg-title {
-    text-align: center;
-    margin: 0 0 35px 0;
-    font-size: 25px;
-}
-
-.group {
-    width: 70%;
-    font-size: 14px;
-    color: #54546c;
+    align-items: center;
+    justify-content: center;
 }
 
 .flex-col {
@@ -94,11 +58,30 @@ body {
     text-align: center;
     flex-direction: column;
     justify-content: space-around;
+    width: 70%;
+    font-size: 14px;
+    color: #54546c;
+}
+
+.flex-item {
+    height: 34px;
+    margin-top: 15px;
+}
+
+.text {
+    color: #fefefe;
+    text-shadow: 0, 0, 3px, #eee;
+}
+
+.text-title {
+    text-align: center;
+    margin: 0 0 35px 0;
+    font-size: 28px;
 }
 
 .btn {
     background: rgb(0, 116, 211);
-    color: #fff;
+    color: #eee;
     border-radius: 15px;
     padding: 7px 25px;
     margin: 15px 0 0 0;
@@ -109,55 +92,26 @@ body {
     background: rgba(0, 146, 231, 0.877);
 }
 
-.option,
-.glass-bg {
-    background-size: cover !important;
-    background-position: center !important;
-    backdrop-filter: blur(10px);
-    animation: fadein 0.3s linear forwards;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-}
-
-.glass-bg {
-    overflow-y: auto;
-    backdrop-filter: blur(15px);
-}
-
-.option {
-    background: #ffffff;
-    transition: all 0.3s linear;
-}
-
 .hide {
     display: none !important;
 }
 
-.select-box {
-    float: left;
-    position: relative;
+.bg {
+    background-size: cover !important;
+    background-position: center !important;
+    transition: all 0.3s linear;
+}
+.images {
     margin: 15px 0 0 20px;
     width: 200px;
     height: 200px;
     border-radius: 15px;
-    background-size: cover !important;
-    background-position: center !important;
     cursor: pointer;
-    background: #6f6f6f30;
-    transition: 0.3s all ease-in;
+    background: #f004;
     overflow: hidden;
 }
 
-.select-box:hover i,
-.select-box i:hover {
-    animation-name: zoom;
-    animation-duration: 0.5s;
-    animation-fill-mode: forwards;
-    animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
-}
-
-.select-box i {
+.images .fa {
     width: 100%;
     height: 100%;
     line-height: 200px;
@@ -167,14 +121,36 @@ body {
     background-color: rgba(104, 104, 104, 0.4);
 }
 
-.option.wraper-level {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    align-items: center;
+.images .fa:hover {
+    animation-name: zoom;
+    animation-duration: 0.3s;
+    animation-fill-mode: forwards;
+    animation-timing-function: cubic-bezier(0.075, 0.1, 0.55, 1);
 }
 
-.option.wraper-level .right-side {
+/* 通用样式  ----  结束 */
+
+/* 特定样式  ---- 开始  */
+
+#container {
+    position: relative;
+    overflow: hidden;
+    width: 900px;
+    height: 600px;
+    border-radius: 15px;
+}
+
+.option {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    position: absolute;
+    /* background: #e8e8e8; */
+}
+
+.right-side {
     width: 300px;
     height: inherit;
     display: flex;
@@ -184,87 +160,24 @@ body {
     position: relative;
 }
 
-.col-item {
-    height: 34px;
-    margin-top: 15px;
-}
-
-.canvas-level {
-    background: #ccc;
-    width: 600px;
-    height: 600px;
-}
-
-.option.wraper-tooltip {
-    background: #ffffffa0;
-    backdrop-filter: blur(0);
-}
-
-.tooltip {
+.copyRight {
     position: absolute;
-    width: 400px;
-    height: 220px;
-    border-radius: 15px;
-    background: #fff;
-    overflow: hidden;
-}
-
-.tooltip .tip-content {
-    box-sizing: border-box;
-    height: 180px;
-    padding: 25px 15px;
-    overflow-y: auto;
-}
-
-.tooltip .tip-close {
-    border-top: 1px solid #ccc7;
-    cursor: pointer;
-    height: 40px;
-    font-size: 20px;
-    line-height: 40px;
-    text-align: center;
-}
-
-#copyRight {
-    position: absolute;
-    color: #e3dede;
+    color: #dedede;
     right: 15px;
     bottom: 7px;
     font-size: 12px;
 }
+/* 特定样式   ----  结束 */
 
-/* 动画 */
-.slideIn {
-    animation: slidein 0.5s ease-in forwards;
-}
-
+/* 关键帧  ----- 开始 */
 @keyframes zoom {
     from {
-        opacity: 0;
-        font-size: 120px;
-    }
-    to {
-        opacity: 1;
-        font-size: 75px;
-    }
-}
-
-@keyframes fadein {
-    from {
         opacity: 0.3;
+        font-size: 12px;
     }
     to {
         opacity: 1;
+        font-size: 77px;
     }
 }
-
-@keyframes slidein {
-    from {
-        transform: translateY(15%);
-        opacity: 0.3;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
+/* 关键帧  --- 结束   */

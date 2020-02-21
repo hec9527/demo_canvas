@@ -23,7 +23,24 @@
  */
 class Pintu {
     constructor() {
-        this.canvas = document.getElementById('canvas');
+        // 独立出来el
+        this.el = {
+            canvas_main: document.querySelector('#canvas-game'),
+            canvas_level: document.querySelector('#canvas-level'),
+            btn_begin: document.querySelector('.btn.begin'),
+            btn_level: document.querySelector('.btn.level'),
+            btn_change: document.querySelector('.btn.change'),
+            btn_history: document.querySelector('.btn.history'),
+            btn_close_tooltip: document.querySelector('.tip.tip-close'),
+            btn_close_select: document.querySelector('.level-close'),
+            btn_ok_level: document.querySelector('.level-set'),
+            cover_all: document.querySelectorAll('.option'),
+            cover_level: document.querySelector('.option.wraper-level'),
+            cover_select: document.querySelector('.option.wraper-image'),
+            cover_tooltip: document.querySelector('.option.wraper-tooltip')
+        };
+
+        this.canvas = document.getElementById('canvas-game');
         this.ctx = this.canvas.getContext('2d');
 
         // arguments
@@ -57,12 +74,12 @@ class Pintu {
                 this.init();
             } else if (e.target.classList.contains('level')) {
                 // 设置难度
-                document.getElementsByClassName('wraper-level')[0].classList.remove('hide');
+                this.el.cover_level.classList.remove('hide');
                 this.flushLevel();
             } else if (e.target.classList.contains('change')) {
                 // 修改使用的图片
                 this.setBackgroundImages();
-                document.getElementsByClassName('wraper-image')[0].classList.remove('hide');
+                this.el.cover_select.classList.remove('hide');
             } else if (e.target.classList.contains('history')) {
                 // 历史记录
                 console.log(4);
@@ -72,7 +89,7 @@ class Pintu {
             ) {
                 // 设置当前的等级
                 this.args.level = this.args.levelOption;
-                document.getElementsByClassName('wraper-level')[0].classList.add('hide');
+                this.el.cover_level.classList.add('hide');
                 this.newTips(`当前难度等级为 ${this.args.level}`, 1500);
             } else if (
                 e.target.classList.contains('select-box') ||
@@ -97,12 +114,12 @@ class Pintu {
         });
 
         // 预览当前使用的图片
-        document.getElementsByClassName('glass-bg')[0].addEventListener('mouseover', e => {
-            const src = e.target.offsetParent.getAttribute('data-src');
-            if (src) {
-                this.setBackgroundImages(src);
-            }
-        });
+        // document.getElementsByClassName('glass-bg')[0].addEventListener('mouseover', e => {
+        //     const src = e.target.offsetParent.getAttribute('data-src');
+        //     if (src) {
+        //         this.setBackgroundImages(src);
+        //     }
+        // });
 
         // 难度变动
         document.getElementsByClassName('level-value')[0].addEventListener('input', e => {
@@ -113,9 +130,8 @@ class Pintu {
 
         // call it
         this.init();
-        this.resize();
         this.render();
-        // this.newTips('部分素材需要联网获取，并确保网络畅通', 3000);
+        // this.newTips('部分素材需要联网获取，并确保网络畅通');
     }
 
     init() {
@@ -126,57 +142,11 @@ class Pintu {
     }
 
     // cover 剪切图片
-    clipImage(img, cover) {
-        const img_w = img.width;
-        const img_h = img.height;
-        const cover_w = cover.offsetWidth;
-        const cover_h = cover.offsetHeight;
-        // 长宽比
-        const img_ratio = img_w / img_h;
-        const cover_ratio = cover_w / cover_h;
-    }
+    clipImage(img) {}
 
-    sortIt(arr) {
-        //
-    }
+    sortIt(arr) {}
 
-    flushLevel() {
-        return false;
-        const canvas = document.getElementsByClassName('canvas-level')[0];
-        const ctx = canvas.getContext('2d');
-        const el = document.createElement('img');
-        const canvas_w = (canvas.width = canvas.offsetWidth);
-        const canvas_h = (canvas.height = canvas.offsetHeight);
-
-        el.onload = () => {
-            const img_w = el.width;
-            const img_h = el.height;
-            const left = (canvas_w - img_w) / 2;
-            const top = (canvas_h - img_h) / 2;
-            const level = this.args.levelOption + 2;
-
-            // 清除绘制区域
-            canvas.width = canvas.width;
-
-            // 居中绘制图片
-            ctx.save();
-            ctx.strokeStyle = '#fff';
-            ctx.drawImage(el, 0, 0, img_w, img_h, left, top, img_w, img_h);
-
-            // 绘制边界线
-            for (let i = 1; i < level; i++) {
-                ctx.beginPath();
-                ctx.moveTo(0, (canvas_h / level) * i);
-                ctx.lineTo(canvas_w, (canvas_h / level) * i);
-                ctx.moveTo((canvas_w / level) * i, 0);
-                ctx.lineTo((canvas_w / level) * i, canvas_h);
-                ctx.closePath();
-                ctx.stroke();
-            }
-            ctx.restore();
-        };
-        el.src = this.args.currentImg;
-    }
+    flushLevel() {}
 
     getLocalRecored() {
         const result = localStorage.getItem('history');
@@ -193,40 +163,30 @@ class Pintu {
         localStorage.setItem('history', rec instanceof Object ? JSON.stringify(res) : rec);
     }
 
-    newTips(msg, num) {
-        document.getElementsByClassName('tip-content')[0].innerHTML = msg;
-        document.getElementsByClassName('wraper-tooltip')[0].classList.remove('hide');
-        if (typeof num === 'number') {
-            setTimeout(
-                () => document.getElementsByClassName('wraper-tooltip')[0].classList.add('hide'),
-                num
-            );
-        }
-    }
-
     initElement() {
-        document.getElementsByClassName('glass-bg')[0].innerHTML = '';
-        this.imgs.forEach(item => {
-            const el = document.createElement('img');
-            el.onload = () => {
-                const node = document.createElement('div');
-                node.classList.add('select-box');
-                node.setAttribute('data-src', item);
-                node.style = `background-image: url(${item})`;
-                node.innerHTML = '<i class="fa fa-check"></i></div>';
-                document.getElementsByClassName('glass-bg')[0].appendChild(node);
-            };
-            el.src = item;
-        });
+        // document.getElementsByClassName('glass-bg')[0].innerHTML = '';
+        // this.imgs.forEach(item => {
+        //     const el = document.createElement('img');
+        //     el.onload = () => {
+        //         const node = document.createElement('div');
+        //         node.classList.add('select-box');
+        //         node.setAttribute('data-src', item);
+        //         node.style = `background-image: url(${item})`;
+        //         node.innerHTML = '<i class="fa fa-check"></i></div>';
+        //         document.getElementsByClassName('glass-bg')[0].appendChild(node);
+        //     };
+        //     el.src = item;
+        // });
     }
 
-    setBackgroundImages(bg = this.args.currentImg) {
-        document.getElementsByClassName('wraper-image')[0].style = `background-image: url(${bg})`;
-    }
+    setBackgroundImages(bg) {
+        if (bg) {
+            return (this.el.cover_select.style = `background-image: url(${bg})`);
+        }
 
-    resize() {
-        this.width = this.canvas.width = this.canvas.offsetWidth;
-        this.height = this.canvas.height = this.canvas.offsetHeight;
+        // Array.from(this.el.cover_all).forEach(item => {
+        //     item.style = `background-image: url(${this.args.currentImg})`;
+        // });
     }
 
     render() {}
@@ -239,3 +199,29 @@ class Pintu {
 }
 
 const tutu = new Pintu();
+
+// document.getElementById('xx').addEventListener('click', e => {
+//     console.log(e);
+// });
+
+// document.getElementsByTagName('input')[0].addEventListener('change', e => {
+//     console.log(e);
+// });
+
+function show() {
+    console.log(arguments);
+}
+
+// function foo(callback = () => {}) {
+//     return new Promise((res, rej) => {
+//         setTimeout(() => {
+//             callback(1, 2, 3, 4, 5, 6, 7, 8);
+//         }, 1000);
+//     });
+// }
+
+// function show(...argus) {
+//     console.log(argus);
+// }
+
+// foo(show);
