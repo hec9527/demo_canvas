@@ -39,14 +39,17 @@ canvas {
     left: 0;
 }
 .glass::after {
-    z-index: -2;
+    z-index: 1;
     backdrop-filter: blur(15px);
 }
 .glass::before {
-    z-index: -1;
+    z-index: 1;
     background: #0001;
 }
 
+.glass * {
+    z-index: 3;
+}
 .flex-center {
     display: flex;
     align-items: center;
@@ -109,6 +112,9 @@ canvas {
     cursor: pointer;
     background: #f004;
     overflow: hidden;
+    background-size: cover !important;
+    background-position: center !important;
+    transition: all 0.3s linear;
 }
 
 .images .fa {
@@ -125,7 +131,7 @@ canvas {
     animation-name: zoom;
     animation-duration: 0.3s;
     animation-fill-mode: forwards;
-    animation-timing-function: cubic-bezier(0.075, 0.1, 0.55, 1);
+    animation-timing-function: ease-in-out;
 }
 
 /* 通用样式  ----  结束 */
@@ -147,7 +153,6 @@ canvas {
     flex-direction: row;
     flex-wrap: wrap;
     position: absolute;
-    /* background: #e8e8e8; */
 }
 
 .right-side {

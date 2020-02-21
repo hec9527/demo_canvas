@@ -1,7 +1,7 @@
 /**
  * @author      hec9527
  * @time        2020-1-22
- * @change      2920-1-23
+ * @change      2920-2-21
  * @description
  *    拼图小游戏
  *        基于canvas制作
@@ -25,36 +25,34 @@ class Pintu {
     constructor() {
         // 独立出来el
         this.el = {
+            container: document.getElementById('container'),
             canvas_main: document.querySelector('#canvas-game'),
             canvas_level: document.querySelector('#canvas-level'),
             btn_begin: document.querySelector('.btn.begin'),
             btn_level: document.querySelector('.btn.level'),
             btn_change: document.querySelector('.btn.change'),
             btn_history: document.querySelector('.btn.history'),
-            btn_close_tooltip: document.querySelector('.tip.tip-close'),
-            btn_close_select: document.querySelector('.level-close'),
+            btn_close_level: document.querySelector('.level-close'),
             btn_ok_level: document.querySelector('.level-set'),
-            cover_all: document.querySelectorAll('.option'),
-            cover_level: document.querySelector('.option.wraper-level'),
-            cover_select: document.querySelector('.option.wraper-image'),
-            cover_tooltip: document.querySelector('.option.wraper-tooltip')
+            cover_bg: document.querySelectorAll('.bg'),
+            cover_level: document.querySelector('.wraper-level'),
+            cover_select: document.querySelector('.wraper-image'),
+            level_input: document.querySelector('.level-input'),
+            level_value: document.querySelector('.level-value')
         };
-
-        this.canvas = document.getElementById('canvas-game');
-        this.ctx = this.canvas.getContext('2d');
 
         // arguments
         this.args = {
             history: {},
-            currentImg: '',
             level: 1,
             levelMin: 1,
             levelMax: 7,
             levelOption: 1,
-            scope: 0
+            step: 0
         };
 
-        // 备份
+        this.img = undefined;
+        this.ctx = this.el.canvas_main.getContext('2d');
         this.argsBack = Object.assign({}, this.args);
 
         // imgs ， optional image src ，it mabey come from website or localhost
@@ -66,79 +64,85 @@ class Pintu {
             './images/4.jpg'
         ];
 
-        // 事件委托
-        document.getElementById('container').addEventListener('click', e => {
-            if (e.target.classList.contains('begin')) {
-                // 开始游戏
-                this.args = Object.assign({}, this.argsBack);
+        // call it
+        this.init();
+        this.render();
+    }
+
+    init() {
+        this.img = this.img || this.imgs[0];
+        this.args = Object.assign({}, this.argsBack);
+        this.initElement();
+        this.bindEvent();
+        this.setBackgroundImages();
+        this.flushLevel();
+    }
+
+    initElement() {
+        this.el.cover_select.innerHTML = '';
+        this.imgs.forEach(url => {
+            const el = document.createElement('img');
+            el.onload = () =>
+                (this.el.cover_select.innerHTML += `<div class="images" style="background-image: url(${url});"><i class="fa fa-check" data-src="${url}"></i></div>`);
+            el.src = url;
+        });
+    }
+
+    bindEvent() {
+        // 事件委托  单击
+        this.el.container.addEventListener('click', e => {
+            if (e.target === this.el.btn_begin) {
                 this.init();
-            } else if (e.target.classList.contains('level')) {
-                // 设置难度
-                this.el.cover_level.classList.remove('hide');
-                this.flushLevel();
-            } else if (e.target.classList.contains('change')) {
-                // 修改使用的图片
-                this.setBackgroundImages();
-                this.el.cover_select.classList.remove('hide');
-            } else if (e.target.classList.contains('history')) {
-                // 历史记录
+            } else if (e.target === this.el.btn_level) {
+                this.el.cover_level.classList.remove('hide') || this.flushLevel();
+            } else if (e.target === this.el.btn_change) {
+                this.el.cover_select.classList.remove('hide') || this.setBackgroundImages();
+            } else if (e.target === this.btn_history) {
                 console.log(4);
-            } else if (
-                e.target.classList.contains('level-set') ||
-                e.target.offsetParent.classList.contains('level-set')
-            ) {
-                // 设置当前的等级
-                this.args.level = this.args.levelOption;
+            } else if (e.target === this.el.btn_ok_level) {
                 this.el.cover_level.classList.add('hide');
-                this.newTips(`当前难度等级为 ${this.args.level}`, 1500);
-            } else if (
-                e.target.classList.contains('select-box') ||
-                e.target.offsetParent.classList.contains('select-box')
-            ) {
-                // 设置当前使用的图片
-                const src = e.target.offsetParent.getAttribute('data-src');
+                this.args.level = this.args.levelOption;
+            } else if (e.target.classList.contains('fa')) {
+                const src = e.target.getAttribute('data-src');
                 if (src) {
-                    this.args.currentImg = src;
+                    this.img = src;
                     this.setBackgroundImages();
-                    document.getElementsByClassName('wraper-image')[0].classList.add('hide');
+                    this.el.cover_select.classList.add('hide');
                 }
-            } else if (e.target.classList.contains('level-close')) {
-                // 关闭难度设置界面
+            } else if (e.target === this.el.btn_close_level) {
                 this.args.levelOption = 1;
-                document.getElementsByClassName('wraper-level')[0].classList.add('hide');
-            } else if (e.target.classList.contains('tip-close')) {
-                // 关闭消息提示界面
-                const el = document.getElementsByClassName('wraper-tooltip')[0];
-                el.classList.add('hide');
+                this.el.cover_level.classList.add('hide');
             }
         });
 
         // 预览当前使用的图片
-        // document.getElementsByClassName('glass-bg')[0].addEventListener('mouseover', e => {
-        //     const src = e.target.offsetParent.getAttribute('data-src');
-        //     if (src) {
-        //         this.setBackgroundImages(src);
-        //     }
-        // });
-
-        // 难度变动
-        document.getElementsByClassName('level-value')[0].addEventListener('input', e => {
-            const value = parseInt(e.target.value);
-            e.target.title = this.args.levelOption = value;
-            this.flushLevel();
+        this.el.container.addEventListener('mousemove', e => {
+            if (e.target.tagName === 'I') {
+                const src = e.target.getAttribute('data-src');
+                src && this.setBackgroundImages(src);
+            }
         });
 
-        // call it
-        this.init();
-        this.render();
-        // this.newTips('部分素材需要联网获取，并确保网络畅通');
+        this.el.cover_select.addEventListener('dblclick', () => {
+            this.el.cover_select.classList.add('hide');
+        });
+
+        // 难度变动
+        this.el.level_input.addEventListener('input', e => {
+            this.args.levelOption = e.target.value;
+            this.el.level_value.innerHTML = e.target.value;
+            this.flushLevel();
+        });
     }
 
-    init() {
-        this.args.currentImg = this.imgs[0];
-        this.initElement();
-        this.setBackgroundImages();
-        this.flushLevel();
+    setBackgroundImages(src) {
+        if (src) {
+            return (this.el.cover_select.style = `background-image: url(${src})`);
+        }
+
+        Array.from(this.el.cover_bg).forEach(item => {
+            item.style = `background-image: url(${this.img})`;
+        });
     }
 
     // cover 剪切图片
@@ -148,80 +152,21 @@ class Pintu {
 
     flushLevel() {}
 
-    getLocalRecored() {
-        const result = localStorage.getItem('history');
-        if (result) {
-            if (result instanceof Object) {
-                return result;
-            } else {
-                return JSON.parse(result);
-            }
-        }
-    }
-
-    setLocalRecored(rec) {
-        localStorage.setItem('history', rec instanceof Object ? JSON.stringify(res) : rec);
-    }
-
-    initElement() {
-        // document.getElementsByClassName('glass-bg')[0].innerHTML = '';
-        // this.imgs.forEach(item => {
-        //     const el = document.createElement('img');
-        //     el.onload = () => {
-        //         const node = document.createElement('div');
-        //         node.classList.add('select-box');
-        //         node.setAttribute('data-src', item);
-        //         node.style = `background-image: url(${item})`;
-        //         node.innerHTML = '<i class="fa fa-check"></i></div>';
-        //         document.getElementsByClassName('glass-bg')[0].appendChild(node);
-        //     };
-        //     el.src = item;
-        // });
-    }
-
-    setBackgroundImages(bg) {
-        if (bg) {
-            return (this.el.cover_select.style = `background-image: url(${bg})`);
-        }
-
-        // Array.from(this.el.cover_all).forEach(item => {
-        //     item.style = `background-image: url(${this.args.currentImg})`;
-        // });
-    }
-
     render() {}
-    // render() {
-    //     this.canvas.width = this.width;
+    // getLocalRecored() {
+    //     const result = localStorage.getItem('history');
+    //     if (result) {
+    //         if (result instanceof Object) {
+    //             return result;
+    //         } else {
+    //             return JSON.parse(result);
+    //         }
+    //     }
+    // }
 
-    //     // 更新
-    //     window.requestAnimationFrame(() => this.render());
+    // setLocalRecored(rec) {
+    //     localStorage.setItem('history', rec instanceof Object ? JSON.stringify(res) : String(rec));
     // }
 }
 
 const tutu = new Pintu();
-
-// document.getElementById('xx').addEventListener('click', e => {
-//     console.log(e);
-// });
-
-// document.getElementsByTagName('input')[0].addEventListener('change', e => {
-//     console.log(e);
-// });
-
-function show() {
-    console.log(arguments);
-}
-
-// function foo(callback = () => {}) {
-//     return new Promise((res, rej) => {
-//         setTimeout(() => {
-//             callback(1, 2, 3, 4, 5, 6, 7, 8);
-//         }, 1000);
-//     });
-// }
-
-// function show(...argus) {
-//     console.log(argus);
-// }
-
-// foo(show);
