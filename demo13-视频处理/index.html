@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <link rel="stylesheet" href="index.css" />
+        <title>视屏处理</title>
+    </head>
+    <body>
+        <div class="container">
+            <canvas id="canvas">您的浏览器不支持canvas</canvas>
+        </div>
+
+        <div class="fixedBox">
+            <div class="operaters"></div>
+            <video id="video" width="400px" height="225px" autobuffer muted controls>
+                <source src="../Assets/videos/40689-1-16.mp4" type="video/mp4" />
+            </video>
+        </div>
+
+        <script src="index.js"></script>
+    </body>
+</html>
