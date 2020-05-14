@@ -31,7 +31,7 @@ class Pintu {
             cover_level: document.querySelector('.wraper-level'),
             cover_select: document.querySelector('.wraper-image'),
             level_input: document.querySelector('.level-input'),
-            level_value: document.querySelector('.level-value')
+            level_value: document.querySelector('.level-value'),
         };
 
         // arguments
@@ -43,7 +43,7 @@ class Pintu {
             levelMax: 7,
             levelOption: 1,
             step: 0,
-            lis: []
+            lis: [],
         };
 
         this.img = undefined;
@@ -56,7 +56,7 @@ class Pintu {
             './images/1.png',
             './images/2.jpg',
             './images/3.jpg',
-            './images/4.jpg'
+            './images/4.jpg',
         ];
 
         // call it
@@ -78,7 +78,7 @@ class Pintu {
 
     initElement() {
         this.el.cover_select.innerHTML = '';
-        this.imgs.forEach(url => {
+        this.imgs.forEach((url) => {
             this.el.cover_select.innerHTML += `<div class="images" style="background-image: url(${url});"><i class="fa fa-check" data-src="${url}"></i></div>`;
         });
     }
@@ -112,7 +112,7 @@ class Pintu {
 
     bindEvent() {
         // 事件委托  单击
-        this.el.container.addEventListener('click', e => {
+        this.el.container.addEventListener('click', (e) => {
             if (e.target === this.el.btn_begin) {
                 e.target.innerHTML = '重新开始';
                 this.init();
@@ -135,7 +135,7 @@ class Pintu {
             }
         });
 
-        this.el.container.addEventListener('mousemove', e => {
+        this.el.container.addEventListener('mousemove', (e) => {
             if (e.target.tagName === 'I') {
                 const src = e.target.getAttribute('data-src');
                 src && this.setBackgroundImages(src);
@@ -146,7 +146,7 @@ class Pintu {
             this.el.cover_select.classList.add('hide');
         });
 
-        this.el.level_input.addEventListener('input', e => {
+        this.el.level_input.addEventListener('input', (e) => {
             this.args.levelOption = e.target.value;
             this.el.level_value.innerHTML = e.target.value;
             this.flushLevel();
@@ -157,7 +157,7 @@ class Pintu {
         if (src) {
             return (this.el.cover_select.style = `background-image: url(${src})`);
         }
-        Array.from(this.el.cover_bg).forEach(item => {
+        Array.from(this.el.cover_bg).forEach((item) => {
             item.style = `background-image: url(${this.img})`;
         });
     }
@@ -174,8 +174,8 @@ class Pintu {
                 canvas.width = min;
                 canvas.height = min;
                 ctx.drawImage(img, left, top, min, min, 0, 0, min, min);
-                this.img = await new Promise(res => {
-                    canvas.toBlob(blob => {
+                this.img = await new Promise((res) => {
+                    canvas.toBlob((blob) => {
                         res(URL.createObjectURL(blob));
                     });
                 });
@@ -211,8 +211,8 @@ class Pintu {
                         width,
                         width
                     );
-                    this.args.lis[i].data = await new Promise(res => {
-                        canvas.toBlob(blob => {
+                    this.args.lis[i].data = await new Promise((res) => {
+                        canvas.toBlob((blob) => {
                             res(URL.createObjectURL(blob));
                         });
                     });
@@ -241,12 +241,12 @@ class Pintu {
     }
 
     drawAll() {
-        this.args.lis.forEach(item => {
+        this.args.lis.forEach((item) => {
             this.drawOne({
                 l: item.l,
                 t: item.t,
                 img: item.data,
-                width: item.width
+                width: item.width,
             });
         });
     }

@@ -17,17 +17,6 @@
  *       碰撞检测
  *        1， 需要考虑阵营
  *        2， 相同阵营也有碰撞检测
- *
- *
- *
- *   ! 存在的问题：
- *       1， 碰撞检测的实现
- *
- *
- *        准确的碰撞检测：
- *        1， 当前帧是否发生碰撞
- *        2， 下一帧是否发生碰撞
- *        3， 在这一帧中，两者行进路径是否相交
  */
 
 // ------------------   工具函数--开始   --------------------------
@@ -63,12 +52,11 @@ function collisionDetectionNextTick(entity1, entity2) {
             top: () => (pos.y -= speed),
             left: () => (pos.x -= speed),
             right: () => (pos.x += speed),
-            bottom: () => (pos.y += speed)
+            bottom: () => (pos.y += speed),
         };
         dirs[dir]();
     };
     move(pos1, entity1.direction, entity1.speed);
-    move(pos2, entity2.direction, entity2.speed);
 
     if (
         pos1.x <= pos2.x &&
@@ -188,7 +176,7 @@ function getDistenceNextTick(entity1, entity2) {
             top: () => (pos.y -= speed),
             left: () => (pos.x -= speed),
             right: () => (pos.x += speed),
-            bottom: () => (pos.y += speed)
+            bottom: () => (pos.y += speed),
         };
         dirs[dir]();
     };
@@ -251,14 +239,14 @@ class KeyBorad {
         this.blockCode = new Set();
 
         // 键盘   --  按下
-        window.addEventListener('keydown', e => {
+        window.addEventListener('keydown', (e) => {
             if (!this.word.game.KEYBORAD_BLOCK) {
                 this.keyCode.add(e.keyCode);
             }
         });
 
         // 键盘  -- 抬起
-        window.addEventListener('keyup', e => {
+        window.addEventListener('keyup', (e) => {
             this.keyCode.delete(e.keyCode);
             this.blockCode.delete(e.keyCode);
         });
@@ -312,13 +300,13 @@ class Sound {
             misc: '/music/misc.mp3', // 定时
             over: '/music/over.mp3',
             pasue: '/music/pause.mp3',
-            start: '/music/start.mp3'
+            start: '/music/start.mp3',
         };
 
         // ES2020
         Promise.allSettled(
             (() => {
-                return Reflect.ownKeys(music).map(item => {
+                return Reflect.ownKeys(music).map((item) => {
                     return new Promise((resolve, reject) => {
                         const player = new Audio();
                         let load = false;
@@ -379,12 +367,12 @@ class Images {
             enemyTank: '/image/enemyTank.png',
             myTank: '/image/myTank.png',
             tool: '/image/tool.png',
-            ui: '/image/UI.png'
+            ui: '/image/UI.png',
         };
 
         Promise.allSettled(
             (() => {
-                return Reflect.ownKeys(images).map(item => {
+                return Reflect.ownKeys(images).map((item) => {
                     return new Promise((resolve, reject) => {
                         const img = new Image();
                         let load = false;
@@ -509,7 +497,7 @@ class Entity {
     }
 
     move() {
-        const ifCanMove = Array.from(this.word.items).every(item => {
+        const ifCanMove = Array.from(this.word.items).every((item) => {
             if (item !== this) {
                 return !collisionDetectionNextTick(this, item) || !collisionBorder(this, this.word);
             }
@@ -521,7 +509,7 @@ class Entity {
                 top: () => (this.pos.y -= this.speed),
                 left: () => (this.pos.x -= this.speed),
                 bottom: () => (this.pos.y += this.speed),
-                right: () => (this.pos.x += this.speed)
+                right: () => (this.pos.x += this.speed),
             };
             this.tick++;
             if (this.tick >= 5) {
@@ -633,7 +621,7 @@ class EnemyTank extends Tank {
             top: () => {},
             left: () => (clip.y = 6),
             right: () => (clip.y = 2),
-            bottom: () => (clip.y = 4)
+            bottom: () => (clip.y = 4),
         };
         dirs[this.direction]();
 
@@ -671,7 +659,7 @@ class AllyTank extends Tank {
     // deputy = true 表示为2号玩家
     constructor(word, deputy = false) {
         const image = word.images.images.myTank;
-        const pos = { x: deputy ? 176 : 240, y: 416 }; // ! 注意这里的具体数值需要经过测量
+        const pos = { x: deputy ? 240 : 176, y: 416 }; // ! 注意这里的具体数值需要经过测量
         const clip = { x: 0, y: 0 };
         const p1Keys = {
             top: 87,
@@ -680,7 +668,7 @@ class AllyTank extends Tank {
             right: 68,
             single: 71,
             double: 72,
-            pause: 99
+            pause: 99,
         };
         const p2Keys = {
             top: 38,
@@ -688,7 +676,7 @@ class AllyTank extends Tank {
             right: 39,
             bottom: 40,
             single: 76,
-            double: 186
+            double: 186,
         };
 
         super(word, image, pos, clip);
@@ -710,7 +698,7 @@ class AllyTank extends Tank {
             top: () => {},
             left: () => (clip.y = 6),
             right: () => (clip.y = 2),
-            bottom: () => (clip.y = 4)
+            bottom: () => (clip.y = 4),
         };
 
         clip.x = clip.x + this.level - 1;
@@ -734,7 +722,7 @@ class AllyTank extends Tank {
             return true;
         }
 
-        Array.from(this.word.items).some(item => {
+        Array.from(this.word.items).some((item) => {
             if (item === this) return false;
             if (collisionDetectionNextTick(this, item)) {
                 detection = true;
@@ -747,7 +735,7 @@ class AllyTank extends Tank {
 
     update() {
         const keyBorad = this.word.keyBorad;
-        const changeDir = dir => {
+        const changeDir = (dir) => {
             if (this.direction !== dir) {
                 const col = ['top', 'bottom'];
                 const row = ['left', 'right'];
@@ -843,7 +831,7 @@ class AllyTank extends Tank {
  */
 class Bullet extends Entity {
     constructor(tank) {
-        const changeClip = dir => {
+        const changeClip = (dir) => {
             if (dir === 'top') {
                 return { x: 0, y: 0 };
             } else if (dir === 'bottom') {
@@ -875,7 +863,7 @@ class Bullet extends Entity {
             top: { x: this.tank.pos.x + 12, y: this.tank.pos.y },
             left: { x: this.tank.pos.x, y: this.tank.pos.y + 12 },
             bottom: { x: this.tank.pos.x + 12, y: this.tank.pos.y + 24 },
-            right: { x: this.tank.pos.x + 24, y: this.tank.pos.y + 12 }
+            right: { x: this.tank.pos.x + 24, y: this.tank.pos.y + 12 },
         };
         return dirs[this.tank.direction];
     }
@@ -895,7 +883,7 @@ class Bullet extends Entity {
         }
 
         // 逐个检测是否碰撞
-        Array.from(this.word.items).some(item => {
+        Array.from(this.word.items).some((item) => {
             if (item === this) return false;
             if (collisionDetectionNextTick(this, item)) {
                 // 子弹遇到其他阵营实体或者 遇到子弹，两者都销毁
@@ -1000,7 +988,7 @@ class Word {
         // 绘制辅助线
         // this.drawLins();
 
-        this.items.forEach(item => {
+        this.items.forEach((item) => {
             item.update();
             item.render();
         });

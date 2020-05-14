@@ -14,7 +14,7 @@ body {
 }
 
 body {
-    background: url(../bilibili.jpg);
+    background: url(../../bilibili.jpg);
     background-position: center;
     background-size: cover;
     display: flex;
@@ -76,7 +76,7 @@ body {
 
 .title {
     -webkit-background-clip: text !important;
-    background: url(./image/text.png);
+    background: url(../image/text.png);
     background-clip: text;
     color: transparent;
     font-weight: 900;
