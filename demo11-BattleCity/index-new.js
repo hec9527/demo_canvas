@@ -251,13 +251,9 @@ class AllyTank extends Tank {
         return [undefined, null].includes(value) || value != value;
     }
 
-    // 判断一个按键是否按下？ 并且弹出,  用于按键的单次响应
-    function isTapTapKey(key) {
-        if (KEYBORAD.hasKey(key)) {
-            KEYBORAD.delKey(key);
-            return true;
-        }
-        return false;
+    // 修改地图数据
+    function fixMapData(value) {
+        return value;
     }
 
     // 获取一个canvas实例
@@ -350,7 +346,9 @@ class AllyTank extends Tank {
     // 键盘监听
     class KeyBorad {
         constructor() {
-            this.keyCode = new Set();
+            this.keyCode = new Set(); // 已经按下的按键
+            this.blockKey = new Set(); // 暂时屏蔽的按键，防止连续响应速度过快
+            this.interval = 150; // 连续响应按键的间隔
 
             // 键盘   --  按下
             window.addEventListener('keydown', (e) => {
@@ -373,6 +371,26 @@ class AllyTank extends Tank {
 
         delKey(code) {
             return this.keyCode.delete(code);
+        }
+
+        // 判断一个按键是否按下？ 并且弹出,  用于按键的单次响应
+        isTapTapKey(key) {
+            if (this.hasKey(key)) {
+                this.delKey(key);
+                return true;
+            }
+            return false;
+        }
+
+        // 一个按键是否按下？  连续响应, 增加响应间隔
+        isHammerKey(key) {
+            if (!this.blockKey.has(key) && this.keyCode.has(key)) {
+                this.blockKey.add(key);
+                setTimeout(() => this.blockKey.delete(key), this.interval);
+                return true;
+            } else {
+                return false;
+            }
         }
 
         clear() {
@@ -415,7 +433,7 @@ class AllyTank extends Tank {
                         }, 5000);
                         player.oncanplay = () => {
                             clearTimeout(timer);
-                            Reflect.defineProperty(sound, item, { value: player });
+                            Reflect.defineProperty(sound, item, { value: player.src });
                             resolve();
                         };
                         player.src = this.pwd + music[item];
@@ -427,9 +445,14 @@ class AllyTank extends Tank {
             });
         }
 
+        /**
+         * @param {*} sound attack   attackOver   bomb   eat   move   life   misc  over   pasue   start
+         */
         play(sound) {
             if (Reflect.ownKeys(this.sound).includes(sound)) {
-                this.sound[sound].play();
+                const player = new Audio();
+                player.src = this.sound[sound];
+                player.play();
             } else {
                 console.error('未注册的音频文件:', sound);
             }
@@ -640,7 +663,7 @@ class AllyTank extends Tank {
 
         // 砖块精灵图
         getBrickSpirit() {
-            if (this.getBrickSpirit.lis) return this.getBirthAnimationSpirit.lis;
+            if (this.getBrickSpirit.lis) return this.getBrickSpirit.lis;
             const lis = [];
             for (let col = 0; col < 21; col++) {
                 const { canvas, ctx } = getCanvas();
@@ -768,15 +791,15 @@ class AllyTank extends Tank {
                     break;
                 }
                 case 'custom': {
-                    this.window = new WindowMapEdit(this);
+                    this.window = new WindowsMapEdit(this);
                     break;
                 }
                 case 'rankPick': {
-                    console.log('TODO 关卡选择');
+                    this.window = new WindowsRankPick(this);
                     break;
                 }
                 case 'battle': {
-                    console.log('TODO 战斗');
+                    this.window = new WindowsBattle(this);
                     break;
                 }
                 case 'settlement': {
@@ -799,6 +822,22 @@ class AllyTank extends Tank {
             this.isOver = false; // 当前窗体是否已经结束？  终止渲染render
         }
 
+        getBackgroundUI() {
+            const { canvas, ctx } = getCanvas();
+            canvas.width = 516;
+            canvas.height = 456;
+            ctx.fillStyle = 'rgb(127, 127, 127)';
+            ctx.fillRect(0, 0, 516, 456);
+            ctx.fillStyle = '#000';
+            ctx.fillRect(
+                CONFIG.static.screen.offset.x,
+                CONFIG.static.screen.offset.y,
+                CONFIG.static.screen.innerWidth,
+                CONFIG.static.screen.innerHeight
+            );
+            return canvas;
+        }
+
         nextWindow(str) {
             console.log(`%cNext windows: ${str}`, 'color:#FFEC3D');
             CONFIG.gameFlow.push(str);
@@ -807,8 +846,13 @@ class AllyTank extends Tank {
         }
 
         render() {
-            this.canvas.width = this.canvas.width;
-            window.requestAnimationFrame(() => !this.isOver && this.render());
+            window.requestAnimationFrame(() => {
+                if (!this.isOver) {
+                    // this.canvas.width = this.canvas.width;
+                    this.ctx.clearRect(0, 0, 516, 456);
+                    this.render();
+                }
+            });
         }
     }
 
@@ -818,15 +862,25 @@ class AllyTank extends Tank {
             super(word);
             const _this = this;
             this.flagPos = [300, 340, 380];
+            this.isload = false;
             this.currentFlag = 0; // 初始选择 第一个  单人游戏
-            this.animaSource = 460; // 动画起始位置
+            this.animaSource = 450; // 动画起始位置
             this.animaTarget = 0; // 动画结束位置
-            this.animaCurrent = this.animaSource;
-            this.menusMarginLeft = (500 - ctx.measureText('PLAYER').width) / 2;
+            this.animaCurrent = CONFIG.game.isFirstLoad ? this.animaSource : this.animaTarget;
+            this.menusMarginLeft = (470 - ctx.measureText('PLAYER').width) / 2;
             this.background = this.getBackgroundUI();
+            CONFIG.game.isFirstLoad = false;
             this.render();
 
-            window.addEventListener('keydown', () => (_this.animaCurrent = _this.animaTarget), { once: true });
+            // TODO 第一次按键不响应其它操作
+            window.addEventListener(
+                'keydown',
+                () => {
+                    _this.animaCurrent = _this.animaTarget;
+                    setTimeout(() => (this.isload = true), 100);
+                },
+                { once: true }
+            );
         }
 
         getBackgroundUI() {
@@ -834,23 +888,25 @@ class AllyTank extends Tank {
             const { canvas, ctx } = getCanvas();
             canvas.width = 516;
             canvas.height = 456;
-            ctx.font = '24px Arial';
+            ctx.font = '22px Arial';
             ctx.fillStyle = '#fff';
             ctx.textBaseline = 'top';
-            ctx.fillText('PLAYER', this.menusMarginLeft, this.flagPos[0]);
-            ctx.fillText('PLAYERS', this.menusMarginLeft, this.flagPos[1]);
-            ctx.fillText('CUSTOM', this.menusMarginLeft, this.flagPos[2]);
+            ctx.fillText('1  PLAYER', this.menusMarginLeft, this.flagPos[0]);
+            ctx.fillText('2  PLAYERS', this.menusMarginLeft, this.flagPos[1]);
+            ctx.fillText('CONSTRUCTION', this.menusMarginLeft, this.flagPos[2]);
             ctx.fillText(`I -        00   HI - 20000     I -        00`, 95, 50);
             ctx.drawImage(IMAGE.getLogoAndGameoverSpirit()[0], 70, 110);
             return canvas;
         }
 
         update() {
-            if (isTapTapKey(CONFIG.static.keys.p1.top)) {
+            if (KEYBORAD.isTapTapKey(CONFIG.static.keys.p1.top)) {
                 this.currentFlag--;
-            } else if (isTapTapKey(CONFIG.static.keys.p1.bottom)) {
+                SOUND.play('attackOver');
+            } else if (KEYBORAD.isTapTapKey(CONFIG.static.keys.p1.bottom)) {
                 this.currentFlag++;
-            } else if (isTapTapKey(CONFIG.static.keys.p1.pause)) {
+                SOUND.play('attackOver');
+            } else if (KEYBORAD.isTapTapKey(CONFIG.static.keys.p1.pause)) {
                 if (this.currentFlag === 0 || this.currentFlag === 1) {
                     CONFIG.game.playerNums = this.currentFlag === 0 ? 1 : 2;
                     CONFIG.game.playerList.add(new Player(true));
@@ -869,8 +925,6 @@ class AllyTank extends Tank {
             } else if (this.currentFlag >= this.flagPos.length) {
                 this.currentFlag = 0;
             }
-
-            // TODO 播放选择的声音
         }
 
         render() {
@@ -879,7 +933,7 @@ class AllyTank extends Tank {
                 this.animaCurrent--;
                 this.ctx.drawImage(this.background, 0, this.animaCurrent);
             } else {
-                this.update();
+                this.isload && this.update();
                 this.ctx.drawImage(this.background, 0, 0);
                 this.ctx.drawImage(IMAGE.getFlagSpirit()[5], this.menusMarginLeft - 50, this.flagPos[this.currentFlag] - 5);
             }
@@ -887,35 +941,250 @@ class AllyTank extends Tank {
     }
 
     // 地图编辑器
-    class WindowMapEdit extends Windows {
-        constructor(context) {
-            // 世界元素属性
-            this.items = new Set();
-            this.ctx = context;
+    class WindowsMapEdit extends Windows {
+        constructor(word) {
+            super(word);
+
+            const lis = new Array(13).fill(0, 0, 13);
+            this.map = [];
+            this.pos = { x: 0, y: 0 };
+            this.tick = 0;
+            this.brickIndex = 0;
+            this.background = this.getBackgroundUI();
+            for (let row = 0; row < 13; row++) {
+                this.map.push(lis.concat([]));
+            }
+            this.render();
         }
 
-        addSpirit(entity) {
-            this.items.add(entity);
-        }
+        update() {
+            this.tick++;
+            // 位置更新
+            if (KEYBORAD.isHammerKey(CONFIG.static.keys.p1.top)) {
+                this.pos.y = this.pos.y <= 0 ? 0 : this.pos.y - 1;
+            } else if (KEYBORAD.isHammerKey(CONFIG.static.keys.p1.left)) {
+                this.pos.x = this.pos.x <= 0 ? 0 : this.pos.x - 1;
+            } else if (KEYBORAD.isHammerKey(CONFIG.static.keys.p1.bottom)) {
+                this.pos.y = this.pos.y >= 12 ? 12 : this.pos.y + 1;
+            } else if (KEYBORAD.isHammerKey(CONFIG.static.keys.p1.right)) {
+                this.pos.x = this.pos.x >= 12 ? 12 : this.pos.x + 1;
+            }
 
-        delSpirit(entity) {
-            this.items.delete(entity);
-        }
+            // TODO 砖块切换逻辑修改
+            // 状态更新 鼠标左键，倒序状态    15  16 不可用  boss状态
+            if (KEYBORAD.isHammerKey(CONFIG.static.keys.p1.single)) {
+                if (this.brickIndex < 1) {
+                    this.brickIndex = 20;
+                } else if (this.brickIndex === 17) {
+                    this.brickIndex -= 3;
+                } else {
+                    this.brickIndex--;
+                }
+                this.map[this.pos.y][this.pos.x] = this.brickIndex;
+            } else if (KEYBORAD.isHammerKey(CONFIG.static.keys.p1.double)) {
+                if (this.brickIndex >= 20) {
+                    this.brickIndex = 0;
+                } else if (this.brickIndex === 14) {
+                    this.brickIndex += 3;
+                } else {
+                    this.brickIndex++;
+                }
+                this.map[this.pos.y][this.pos.x] = this.brickIndex;
+            }
+            if (KEYBORAD.isTapTapKey(CONFIG.static.keys.p1.pause)) {
+                console.log('地图编辑完成');
 
-        clearSpirit() {
-            this.items.clear();
+                this.nextWindow(CONFIG.gameFlows.title);
+            }
+            KEYBORAD.showKey();
         }
 
         render() {
+            super.render();
+            this.update();
+            this.ctx.drawImage(this.background, 0, 0);
+            for (let row = 0; row < 13; row++) {
+                for (let col = 0; col < 13; col++) {
+                    this.ctx.drawImage(
+                        IMAGE.getBrickSpirit()[this.map[row][col]],
+                        32 * col + CONFIG.static.screen.offset.x,
+                        32 * row + CONFIG.static.screen.offset.y
+                    );
+                }
+            }
+            this.tick <= 20 &&
+                this.ctx.drawImage(
+                    IMAGE.getFlagSpirit()[4],
+                    32 * this.pos.x + CONFIG.static.screen.offset.x,
+                    32 * this.pos.y + CONFIG.static.screen.offset.y
+                );
+            if (this.tick > 35) {
+                this.tick = 0;
+            }
+        }
+    }
+
+    // 关卡选择界面
+    class WindowsRankPick extends Windows {
+        constructor(word) {
+            super(word);
+            // 456 / 2 = 228
+            this.rank = CONFIG.game.gameRank;
+            this.isLoad = false;
+            this.isBegin = false;
+            this.targetTop = 0;
+            this.ctx.font = '22px Microsoft Yahei';
+            this.ctx.textBaseline = 'middle';
+            this.timer = null;
+            this.render();
+        }
+
+        renderLoadAnimation() {
+            if (this.targetTop < 228) {
+                this.targetTop += 8;
+                this.ctx.fillStyle = 'rgb(127, 127, 127)';
+                this.ctx.fillRect(0, 0, 516, this.targetTop);
+                this.ctx.fillRect(0, 456 - this.targetTop, 516, 228);
+            } else {
+                this.isLoad = true;
+            }
+        }
+
+        renderRankChange() {
+            this.ctx.fillStyle = 'rgb(127, 127, 127)';
+            this.ctx.fillRect(0, 0, 516, 456);
             this.ctx.fillStyle = '#000';
-            this.ctx.fillRect(0, 0, this.width, this.height);
+            this.ctx.fillText('STAGE', 200, 220);
+            this.ctx.fillText(`${this.rank}`, 300, 220);
+        }
 
-            this.items.forEach((item) => {
-                item.update();
-                item.render();
-            });
+        update() {
+            if (KEYBORAD.isTapTapKey(CONFIG.static.keys.p1.top)) {
+                this.rank = this.rank >= 50 ? 50 : ++this.rank;
+            } else if (KEYBORAD.isTapTapKey(CONFIG.static.keys.p1.bottom)) {
+                this.rank = this.rank > 1 ? --this.rank : 1;
+            } else if (KEYBORAD.isTapTapKey(CONFIG.static.keys.p1.pause)) {
+                this.beginGame();
+                CONFIG.game.gameRank = this.rank;
+            }
+        }
 
-            window.requestAnimationFrame(() => this.render());
+        beginGame() {
+            this.isBegin = true;
+            SOUND.play('start');
+            setTimeout(() => {
+                this.nextWindow(CONFIG.gameFlows.battle);
+            }, 1000);
+        }
+
+        render() {
+            super.render();
+            // 加载完成之前  加载动画
+            if (!this.isLoad) {
+                this.renderLoadAnimation();
+            }
+            if (this.isLoad) {
+                if (!this.isBegin) {
+                    if (typeOf(MAP.maps[0]) !== 'array') {
+                        this.beginGame();
+                    } else {
+                        this.update();
+                    }
+                }
+                this.renderRankChange();
+            }
+        }
+    }
+
+    // 战斗界面
+    class WindowsBattle extends Windows {
+        constructor(word) {
+            super(word);
+            this.background = this.getBackgroundUI();
+            this.isload = false;
+            this.targetTop = 228;
+            this.enemyRemain = 20; // 每一关卡敌人的数量
+            // 敌人默认出生位置
+            this.enemyBirthPos = [
+                { x: 0, y: 0 },
+                { x: 6, y: 0 },
+                { x: 12, y: 12 },
+            ];
+            this.enemyBirthIndex = 0; // 本次敌人出生位置
+            this.map = fixMapData(MAP.maps[CONFIG.game.gameRank]);
+
+            this.render();
+        }
+
+        getBackgroundUI() {
+            const { canvas, ctx } = getCanvas();
+            canvas.width = 516;
+            canvas.height = 456;
+            ctx.fillStyle = 'rgb(127, 127, 127)';
+            ctx.fillRect(0, 0, 516, 456);
+            ctx.fillStyle = '#000';
+            ctx.fillRect(
+                CONFIG.static.screen.offset.x,
+                CONFIG.static.screen.offset.y,
+                CONFIG.static.screen.innerWidth,
+                CONFIG.static.screen.innerHeight
+            );
+            return canvas;
+        }
+
+        renderLoadAnimation() {
+            if (this.targetTop > 0) {
+                this.targetTop -= 8;
+                this.ctx.fillStyle = 'rgb(127, 127, 127)';
+                this.ctx.fillRect(0, 0, 516, this.targetTop);
+                this.ctx.fillRect(0, 456 - this.targetTop, 516, 228);
+            } else {
+                this.isLoad = true;
+            }
+        }
+
+        renderEnemyFlag() {
+            const left = 470;
+            const top = 35;
+            for (let i = 0; i < this.enemyRemain; i++) {
+                const col = (i / 2) | 0;
+                this.ctx.drawImage(IMAGE.getFlagSpirit()[0], left + (i % 2 === 0 ? 0 : 16), top + 16 * col);
+            }
+        }
+
+        renderMyFlag() {
+            const left = 464;
+            const top = 270;
+            this.ctx.save();
+            // this.ctx.fillText('1P', left, top);
+            this.ctx.font = '22px Microsoft Yahei';
+            this.ctx.fillStyle = '#000';
+            // TODO 显示玩家的血量
+            this.ctx.fillText('ⅠP', left, top);
+            this.ctx.fillText('2', left + 20, top + 25);
+            this.ctx.drawImage(IMAGE.getFlagSpirit()[1], left + 5, top + 10);
+            this.ctx.fillText('ⅡP', left, top + 60);
+            this.ctx.fillText('2', left + 20, top + 85);
+            this.ctx.drawImage(IMAGE.getFlagSpirit()[1], left + 5, top + 70);
+            // 渲染关卡标识
+            this.ctx.drawImage(IMAGE.getFlagSpirit()[3], left + 3, top + 100);
+            this.ctx.fillText(CONFIG.game.gameRank, left + 20, top + 145);
+            this.ctx.restore();
+        }
+
+        renderAllyFlag() {}
+
+        update() {}
+
+        render() {
+            super.render();
+            this.ctx.drawImage(this.background, 0, 0);
+            this.renderEnemyFlag();
+            this.renderMyFlag();
+
+            if (!this.isLoad) {
+                this.renderLoadAnimation();
+            }
         }
     }
 
@@ -1092,24 +1361,32 @@ class AllyTank extends Tank {
         }
     }
 
+    class GameMap {
+        constructor() {
+            this.maps = [undefined];
+        }
+    }
+
     const PWD = window.location.href.slice(0, window.location.href.lastIndexOf('/'));
     const IMAGE = new Images(PWD);
     const SOUND = new Sound(PWD);
     const KEYBORAD = new KeyBorad();
+    const MAP = new GameMap();
 
     // 游戏相关属性
     const CONFIG = {
         game: {
             playerNums: 1,
             playerList: new Set(),
-            gameRank: 1,
+            gameRank: 1, // 当前关卡
             customRank: undefined,
+            isFirstLoad: true,
         },
         static: {
             // 玩家按键
             keys: {
                 //    w        a         s           d          j           k           b
-                p1: { top: 87, left: 65, bottom: 83, right: 68, single: 71, double: 72, pause: 66 },
+                p1: { top: 87, left: 65, bottom: 83, right: 68, single: 74, double: 75, pause: 66 },
                 //    上        坐        下          右         l            ;
                 p2: { top: 38, left: 37, bottom: 40, right: 39, single: 76, double: 186 },
             },
@@ -1123,7 +1400,7 @@ class AllyTank extends Tank {
             },
             // 屏幕参数
             screen: {
-                offset: { x: 0, y: 0 },
+                offset: { x: 35, y: 20 },
                 innerWidth: 416,
                 innerHeight: 416,
                 width: 516,
@@ -1134,6 +1411,9 @@ class AllyTank extends Tank {
         gameFlows: { title: 'title', custom: 'custom', rankPick: 'rankPick', battle: 'battle', settlement: 'settlement' },
         gameFlow: ['title'],
     };
+
+    // 开发
+    CONFIG.gameFlow = [CONFIG.gameFlows.title];
 
     setTimeout(() => {
         const WORD = new Word();
@@ -1151,11 +1431,11 @@ class AllyTank extends Tank {
         // const img = IMAGE.getReawrdSpirit();
         // const img = IMAGE.getScoreSpirit();
         // const img = IMAGE.getBirthAnimationSpirit();
-        // const img = IMAGE.getBrickSpirit();
+        const img = IMAGE.getBrickSpirit();
         // const img = IMAGE.getExplodeAnimationSpirit();
         // const img = IMAGE.getScoreComputeSpirit();
         // const img = IMAGE.getFlagSpirit();
-        const img = IMAGE.getLogoAndGameoverSpirit();
+        // const img = IMAGE.getLogoAndGameoverSpirit();
         // const img = IMAGE.getArmorSpirit();
 
         // 子弹   精灵图列表
@@ -1171,7 +1451,7 @@ class AllyTank extends Tank {
         // 出生动画精灵图
         // ctx.drawImage(img[1], 0, 0);
         // 砖块精灵图
-        // ctx.drawImage(img[20], 0, 0);
+        ctx.drawImage(img[20], 0, 0);
         // 爆炸精灵图
         // ctx.drawImage(img[4], 0, 0);
         // 结算界面
