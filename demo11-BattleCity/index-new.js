@@ -2,6 +2,8 @@
  * @author     hec9527
  * @time       2020-5-14
  * @description
+ *    提高运行效率：  使用clip 之后再 clearReact 就不会清除其它区域的内容了
+ *    提高性能，Item只在需要的时候 擦除，不必每次循环都全部擦除
  */
 
 class Tank {}

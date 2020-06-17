@@ -13,7 +13,7 @@
         <div id="container" class="glass">
             <!-- 主体窗口 -->
             <div class="option glass">
-                <canvas id="canvas-game" width="500" height="500"></canvas>
+                <canvas id="canvas-game canvas" width="500" height="500"></canvas>
                 <div class="right-side flex-center">
                     <h3 class="text text-title">拼图小游戏</h3>
                     <div class="text">
@@ -36,28 +36,16 @@
                         游戏难度
                     </h3>
                     <div class="flex-col">
-                        <div class="flex-item text" style="font-size:12px;">
+                        <div class="flex-item text" style="font-size: 12px;">
                             <span>当前难度等级：</span>
                             <span class="level-value">1</span>
                         </div>
                         <div class="flex-item">
-                            <input
-                                class="level-input"
-                                type="range"
-                                title="1"
-                                step="1"
-                                min="1"
-                                max="7"
-                                value="1"
-                            />
+                            <input class="level-input" type="range" title="1" step="1" min="1" max="7" value="1" />
                         </div>
                         <div>
-                            <div class="operater btn level-set">
-                                <i class="fa fa-check level-set"></i> &nbsp;确认
-                            </div>
-                            <div class="operater btn level-close">
-                                <i class="fa fa-close level-close"></i> &nbsp;取消
-                            </div>
+                            <div class="operater btn level-set"><i class="fa fa-check level-set"></i> &nbsp;确认</div>
+                            <div class="operater btn level-close"><i class="fa fa-close level-close"></i> &nbsp;取消</div>
                         </div>
                     </div>
                 </div>

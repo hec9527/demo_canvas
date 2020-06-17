@@ -11,6 +11,91 @@
  *       后期修正：
  */
 
+class Config {
+    static canvas_width = 600;
+    static canvas_height = 600;
+}
+
+/**
+ * 工具类
+ */
+class Tool {
+    /**
+     * 获取一个指定大小的空白canvas
+     * @param {Number} size
+     */
+    static getCanvas(size) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = size;
+        canvas.height = size;
+        return { canvas, ctx };
+    }
+}
+
+/**
+ * 加载并且获取精灵图
+ */
+class Images {
+    constructor(src, fragment) {
+        this.fragment = fragment;
+        this.img = this.getImage(src);
+        this.img = this.clipImage();
+        this.images = this.getImageFragment();
+    }
+
+    async getImage(src) {
+        const img = document.createElement('img');
+        await new Promise((resolve) => {
+            img.onload = function () {
+                resolve(img);
+            };
+            img.src = src;
+        });
+        return img;
+    }
+
+    clipImage() {
+        console.log(this.img);
+
+        const size = Math.min(this.img.width, this.img.height);
+        const { canvas, ctx } = Tool.getCanvas(size);
+        ctx.drawImage(this.img, (this.img.width - size) / 2, (this.img.height - size) / 2, size, size, 0, 0, size, size, size);
+        return canvas;
+    }
+
+    getImageFragment() {
+        // 绘制canvas的大小
+        const fragmentSize = Config.canvas_width / this.fragment;
+        const imgSize = this.img.width / this.fragment;
+        const lis = [];
+
+        for (let col = 0; col < this.fragment; col++) {
+            for (let row = 0; row < this.fragment; row++) {
+                const { canvas, ctx } = Tool.getCanvas(fragmentSize);
+                ctx.drawImage(this.img, col * imgSize, row * imgSize, imgSize, imgSize, 0, 0, fragmentSize, frameSize);
+                lis.push(canvas);
+            }
+        }
+        return lis;
+    }
+}
+
+const img = new Images('./images/1.jpg', 3);
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+async function show() {
+    for (let i = 0; i < img.images.length; i++) {
+        await new Promise((res) => {
+            setTimeout(() => res(), 1000);
+            ctx.drawImage(img.images[i]);
+        });
+    }
+}
+
+show();
+
 /**
  * 拼图
  */
@@ -51,13 +136,7 @@ class Pintu {
         this.argsBack = Object.assign({}, this.args);
 
         // imgs ， optional image src ，it mabey come from website or localhost
-        this.imgs = [
-            './images/1.jpg',
-            './images/1.png',
-            './images/2.jpg',
-            './images/3.jpg',
-            './images/4.jpg',
-        ];
+        this.imgs = ['./images/1.jpg', './images/1.png', './images/2.jpg', './images/3.jpg', './images/4.jpg'];
 
         // call it
         this.init();
@@ -200,17 +279,7 @@ class Pintu {
                 const row = this.args.left + 2;
                 for (let i = 0; i < this.args.lis.block; i++) {
                     canvas.width = width;
-                    ctx.drawImage(
-                        img,
-                        (i % row) * width,
-                        ((i / row) | 0) * width,
-                        width,
-                        width,
-                        0,
-                        0,
-                        width,
-                        width
-                    );
+                    ctx.drawImage(img, (i % row) * width, ((i / row) | 0) * width, width, width, 0, 0, width, width);
                     this.args.lis[i].data = await new Promise((res) => {
                         canvas.toBlob((blob) => {
                             res(URL.createObjectURL(blob));
@@ -227,17 +296,7 @@ class Pintu {
     }
 
     drawOne(option) {
-        this.ctx.drawImage(
-            option.img,
-            option.l,
-            option.t,
-            option.width,
-            option.width,
-            0,
-            0,
-            option.width,
-            option.width
-        );
+        this.ctx.drawImage(option.img, option.l, option.t, option.width, option.width, 0, 0, option.width, option.width);
     }
 
     drawAll() {
@@ -274,5 +333,4 @@ class Pintu {
     //     localStorage.setItem('history', rec instanceof Object ? JSON.stringify(res) : String(rec));
     // }
 }
-
-const tutu = new Pintu();
+// const tutu = new Pintu();
