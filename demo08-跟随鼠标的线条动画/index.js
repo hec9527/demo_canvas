@@ -44,7 +44,7 @@ class Particle {
             '#ffc952',
             '#47b8e0',
             '#34314c',
-            '#30A9DE'
+            '#30A9DE',
         ];
         return colors[(Math.random() * colors.length) | 0];
     }
@@ -110,21 +110,21 @@ class World {
         this.clicked = false;
 
         // 监听
-        window.addEventListener('resize', e => {
+        window.addEventListener('resize', (e) => {
             this.width = this.canvas.width = this.canvas.offsetWidth;
             this.height = this.canvas.height = this.canvas.offsetHeight;
         });
 
-        window.addEventListener('mousemove', e => {
+        window.addEventListener('mousemove', (e) => {
             this.mousePos.x = e.pageX;
             this.mousePos.y = e.pageY;
         });
 
-        window.addEventListener('mousedown', e => {
+        window.addEventListener('mousedown', (e) => {
             this.clicked = true;
         });
 
-        window.addEventListener('mouseup', e => {
+        window.addEventListener('mouseup', (e) => {
             this.clicked = false;
         });
 
@@ -140,7 +140,7 @@ class World {
         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
         this.ctx.fillRect(0, 0, this.width, this.height);
 
-        this.items.forEach(item => {
+        this.items.forEach((item) => {
             item.update();
             item.render();
         });

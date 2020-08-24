@@ -139,7 +139,7 @@ class Ball {
 
     update() {
         // 碰撞检测
-        this.world.items.forEach(item => {
+        this.world.items.forEach((item) => {
             if (this !== item) {
                 this.collisionDetection(item);
             }
@@ -232,23 +232,22 @@ class World {
         }
 
         // 事件监听
-        window.addEventListener(
-            'resize',
-            e => {
-                this.width = this.canvas.width = this.canvas.offsetWidth;
-                this.height = this.canvas.height = this.canvas.offsetHeight;
-            },
-            false
-        );
+        window.addEventListener('resize', () => this.resize(), false);
 
         // 开始绘制
+        this.resize();
         this.render();
+    }
+
+    resize() {
+        this.width = this.canvas.width = this.canvas.offsetWidth;
+        this.height = this.canvas.height = this.canvas.offsetHeight;
     }
 
     render() {
         this.canvas.width = this.canvas.width;
 
-        this.items.forEach(item => {
+        this.items.forEach((item) => {
             item.update();
             item.render();
         });

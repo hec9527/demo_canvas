@@ -64,7 +64,7 @@ function getFileBase(mime) {
         'application/zip': '.zip',
         'video/3gpp': '.3gp',
         'video/3gpp2': '.3g2',
-        'application/x-7z-compressed': '.7z'
+        'application/x-7z-compressed': '.7z',
     };
     return fileTypes[mime];
 }
@@ -97,13 +97,13 @@ class FileClick {
     constructor(callback, elID = 'fileReader') {
         document.getElementById(elID).addEventListener(
             'change',
-            e => {
+            (e) => {
                 const file = e.target.files[0];
                 const fileReader = new FileReader();
 
                 if (!file) return alert('文件读取出错！');
 
-                fileReader.onload = e => {
+                fileReader.onload = (e) => {
                     file.fileData = e.target.result;
                     file.base = getFileBase(file.type || undefined);
                     file.computedSize = getFileSize(file.size || undefined);
@@ -123,7 +123,7 @@ class FileDrager {
         // 需要将这两个事件的默认事件给禁用了
         el.addEventListener(
             'dragenter',
-            e => {
+            (e) => {
                 e.preventDefault();
                 e.stopPropagation();
             },
@@ -133,7 +133,7 @@ class FileDrager {
         // 在这两个阶段的默认事件都应该禁用了
         el.addEventListener(
             'dragover',
-            e => {
+            (e) => {
                 e.stopPropagation();
                 e.preventDefault();
             },
@@ -143,14 +143,14 @@ class FileDrager {
         // drop 事件  drop  drop  放下拖动放下的事件 不是drag
         el.addEventListener(
             'drop',
-            e => {
+            (e) => {
                 const fileReader = new FileReader();
                 const file = e.dataTransfer.files[0];
 
                 e.stopPropagation();
                 e.preventDefault();
 
-                fileReader.onload = e => {
+                fileReader.onload = (e) => {
                     file.fileData = e.target.result;
                     file.base = getFileBase(file.type || undefined);
                     file.computedSize = getFileSize(file.size || undefined);
@@ -176,7 +176,7 @@ class FileHandler {
             select: document.getElementsByClassName('toolbar-items select')[0],
             submit: document.getElementsByClassName('toolbar-items submit')[0],
             info: document.getElementsByClassName('toolbar-items info')[0],
-            reset: document.getElementsByClassName('toolbar-items refresh')[0]
+            reset: document.getElementsByClassName('toolbar-items refresh')[0],
         };
 
         // 画板参数对象
@@ -187,12 +187,12 @@ class FileHandler {
             minZoom: 0.1,
             maxZoom: 10,
             zoom: undefined,
-            rotate: 0
+            rotate: 0,
         };
 
         // -----------------  初始化对象的事件监听    ----------------
-        new FileDrager(e => this.fileChange(e));
-        new FileClick(e => this.fileChange(e));
+        new FileDrager((e) => this.fileChange(e));
+        new FileClick((e) => this.fileChange(e));
 
         this.canvas.addEventListener('mousewheel', this.mousewheel, false);
 
@@ -200,7 +200,7 @@ class FileHandler {
         // 打开
         this.toolBar.open.addEventListener(
             'click',
-            e => {
+            (e) => {
                 console.log('打开');
                 this.toolBar.reset.click();
                 document.getElementById('fileReader').click();
@@ -211,7 +211,7 @@ class FileHandler {
         // 创建选区
         this.toolBar.select.addEventListener(
             'click',
-            e => {
+            (e) => {
                 console.log('select');
             },
             false
@@ -220,7 +220,7 @@ class FileHandler {
         // 提交
         this.toolBar.submit.addEventListener(
             'click',
-            e => {
+            (e) => {
                 console.log('提交');
             },
             false
@@ -229,7 +229,7 @@ class FileHandler {
         // 信息
         this.toolBar.info.addEventListener(
             'click',
-            e => {
+            (e) => {
                 console.log('信息');
             },
             false
@@ -238,7 +238,7 @@ class FileHandler {
         // 重制
         this.toolBar.reset.addEventListener(
             'click',
-            e => {
+            (e) => {
                 console.log('重置');
             },
             false
@@ -265,7 +265,6 @@ class FileHandler {
     // 加载文件之后调用，如果已经加载图片文件则切换到编辑界面
     changeSection() {
         const sections = document.getElementsByClassName('section');
-
         sections[0].classList.add('hide');
         sections[1].classList.remove('hide');
     }
@@ -342,7 +341,7 @@ class FileHandler {
     // 获取图片的缩放比例
     getZoom() {
         const el = document.createElement('img');
-        el.onload = e => {
+        el.onload = (e) => {
             const ratioImage = el.width / el.height;
             const ratioCanvas = this.canvas.width / this.canvas.height;
 

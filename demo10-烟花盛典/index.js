@@ -130,11 +130,11 @@ class Fireworks {
         this.radius = Math.random() * 3 + 5;
         this.radius_explode = ((Math.random() * this.word.width + 200) / 2) | 0; // 爆炸范围
 
-        this.fragementDrop = Math.random() < 0.7 ? true : false;
+        this.fragementDrop = Math.random() < 0.9 ? true : false;
 
         this.speed = {
             x: Math.random() < 0.5 ? Math.random() * 0.5 + 0.3 : -(Math.random() * 0.5 + 0.2),
-            y: -(Math.random() * 5 + 8)
+            y: -(Math.random() * 5 + 8),
         };
     }
 
@@ -148,7 +148,7 @@ class Fireworks {
                     color: this.color_hue,
                     radius: this.radius / 5,
                     friction: this.word.config.friction,
-                    ctx: this.word.ctx
+                    ctx: this.word.ctx,
                 });
             } else {
                 new Fragement({
@@ -157,7 +157,7 @@ class Fireworks {
                     color: this.color_hue,
                     radius: this.radius / 7,
                     friction: this.word.config.friction,
-                    ctx: this.word.ctx
+                    ctx: this.word.ctx,
                 });
             }
         }
@@ -205,7 +205,7 @@ class Word {
         this.items = new Set();
         this.config = {
             fireworkNum: 7, // 烟花数量
-            friction: 0.995 // 摩擦系数
+            friction: 0.995, // 摩擦系数
         };
 
         this.resize();
@@ -229,7 +229,7 @@ class Word {
         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
         this.ctx.fillRect(0, 0, this.width, this.height);
 
-        Array.from(this.items).forEach(item => {
+        Array.from(this.items).forEach((item) => {
             item.update();
             item.render();
         });
