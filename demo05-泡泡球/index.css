@@ -9,14 +9,15 @@
 body {
     width: 100vw;
     height: 100vh;
-    background: url(../bilibili.jpg);
+    background: url(../images/bilibili.jpg);
     background-size: cover;
     background-position: center;
 }
 
-#myCanvas {
+#canvas {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
 }

@@ -102,7 +102,6 @@ class World {
         this.items = [];
         this.width = this.canvas.width = this.canvas.offsetWidth;
         this.height = this.canvas.height = this.canvas.offsetHeight;
-        this.mousePos = { x: -1000, y: -1000 };
         this.ballNum = 100;
         this.tips = '点击页面重置';
 
@@ -111,18 +110,8 @@ class World {
             new GravityBall(this);
         }
 
-        // 事件监听
-        window.addEventListener(
-            'mousemove',
-            e => {
-                this.mousePos.x = e.pageX;
-                this.mousePos.y = e.pageY;
-            },
-            false
-        );
-
         // 重新初始化
-        window.addEventListener('click', e => (world = new World()), { once: true });
+        window.addEventListener('click', () => new World(), { once: true });
 
         this.render();
     }
@@ -142,16 +131,13 @@ class World {
 
     render() {
         this.canvas.width = this.width;
-
         this.renderTips();
-
-        this.items.forEach(item => {
+        this.items.forEach((item) => {
             item.update();
             item.render();
         });
-
         window.requestAnimationFrame(() => this.render());
     }
 }
 
-let world = new World();
+new World();

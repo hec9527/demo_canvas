@@ -1,54 +1,35 @@
 class CanvasEvent {
     constructor() {
-        this.canvas =
-            document.getElementById('canvas') ||
-            function() {
-                const el = document.createElement('canvas');
-                el.style.width = '800px';
-                el.style.height = '450px';
-                el.style.position = 'absolute';
-                el.style.margin = 'auto';
-                el.style.top = 0;
-                el.style.bottom = 0;
-                el.style.left = 0;
-                el.style.right = 0;
-                el.width = 800;
-                el.height = 450;
-                el.style.background = 'rgba(0, 0, 0, 0.3';
-                return el;
-            };
+        this.canvas = document.getElementById('canvas');
         this.context = this.canvas.getContext('2d');
         this.etype = '';
         this.x = 0;
         this.y = 0;
-        this.clear = window.clear = true;
 
-        this.canvas.addEventListener('mousemove', e => {
+        this.canvas.addEventListener('mousemove', (e) => {
             this.changeInfo('mousemove', e);
-            this.drawLine();
         });
 
-        this.canvas.addEventListener('mousedown', e => {
+        this.canvas.addEventListener('mousedown', (e) => {
             this.changeInfo('mousedown', e);
-            this.drawLine();
         });
 
-        this.canvas.addEventListener('mouseup', e => {
+        this.canvas.addEventListener('mouseup', (e) => {
             this.changeInfo('mouseup', e);
-            this.drawLine();
         });
 
-        this.canvas.addEventListener('mouseover', e => {
+        this.canvas.addEventListener('mouseover', (e) => {
             this.changeInfo('mouseover', e);
-            this.drawLine();
+
             // alert(1);
             console.log('在鼠标进入canvas的一瞬间触发');
         });
 
-        this.canvas.addEventListener('mouseleave', e => {
+        this.canvas.addEventListener('mouseleave', (e) => {
             this.changeInfo('mouseleave', e);
-            this.drawLine();
         });
+
+        this.draw();
     }
 
     changeInfo(etype, e) {
@@ -57,9 +38,8 @@ class CanvasEvent {
         this.y = e.layerY;
     }
 
-    drawLine() {
-        // window.clear && this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        window.clear && (this.canvas.width = this.canvas.width); // 这2中方式都可以
+    draw() {
+        this.canvas.width = this.canvas.width;
         this.context.save();
         this.context.beginPath();
         this.context.setLineDash([10, 5]); // 设置虚线效果，数组中以此为实线长度，虚线长度
@@ -71,19 +51,16 @@ class CanvasEvent {
         this.context.stroke();
         this.context.closePath();
         this.context.restore();
-        this.drawFont();
-    }
-
-    drawFont() {
+        // 绘制文字
         this.context.save();
         this.context.font = '30px SimSun, Songti SC';
         this.context.fillText(`Event: ${this.etype}`, 30, 50);
         this.context.fillText(`X: ${this.x}`, 30, 80);
         this.context.fillText(`Y: ${this.y}`, 30, 110);
         this.context.restore();
+
+        window.requestAnimationFrame(() => this.draw());
     }
 }
 
 new CanvasEvent();
-
-console.log('window.clear = true/false, it contral the canvas clear');

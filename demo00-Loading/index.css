@@ -13,20 +13,16 @@ body {
 }
 
 #canvas {
-    width: 800px;
-    height: 450px;
-    position: absolute;
-    margin: auto;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
     border-radius: 15px;
-    background: rgba(0, 0, 0, 0.3);
+    background: #0003;
+    backdrop-filter: blur(15px);
 }
 
 body {
-    background: url('../bilibili.jpg');
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: url('../images/bilibili.jpg');
     background-size: cover;
     background-position: center;
 }

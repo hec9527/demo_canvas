@@ -43,14 +43,7 @@
             canvas2.width = 100;
             canvas2.height = 100;
             var half = canvas2.width / 2,
-                gradient2 = ctx2.createRadialGradient(
-                    half,
-                    half,
-                    0,
-                    half,
-                    half,
-                    half
-                );
+                gradient2 = ctx2.createRadialGradient(half, half, 0, half, half, half);
             gradient2.addColorStop(0.025, '#CCC');
             gradient2.addColorStop(0.1, 'hsl(' + hue + ', 61%, 33%)');
             gradient2.addColorStop(0.25, 'hsl(' + hue + ', 64%, 6%)');
@@ -85,7 +78,7 @@
                 //星星移动范围，值越大范围越小，
             }
 
-            var Star = function() {
+            var Star = function () {
                 this.orbitRadius = random(maxOrbit(w, h));
                 this.radius = random(60, this.orbitRadius) / 8;
                 //星星大小
@@ -100,13 +93,9 @@
                 stars[count] = this;
             };
 
-            Star.prototype.draw = function() {
-                var x =
-                        Math.sin(this.timePassed) * this.orbitRadius +
-                        this.orbitX,
-                    y =
-                        Math.cos(this.timePassed) * this.orbitRadius +
-                        this.orbitY,
+            Star.prototype.draw = function () {
+                var x = Math.sin(this.timePassed) * this.orbitRadius + this.orbitX,
+                    y = Math.cos(this.timePassed) * this.orbitRadius + this.orbitY,
                     twinkle = random(10);
 
                 if (twinkle === 1 && this.alpha > 0) {

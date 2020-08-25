@@ -82,7 +82,7 @@ class Bubble {
 
 class World {
     constructor() {
-        this.canvas = document.getElementById('myCanvas');
+        this.canvas = document.getElementById('canvas');
         this.ctx = this.canvas.getContext('2d');
         this.canvas.width = this.canvas.offsetWidth;
         this.canvas.height = this.canvas.offsetHeight;
@@ -102,7 +102,7 @@ class World {
 
         window.addEventListener(
             'mousemove',
-            e => {
+            (e) => {
                 this.mousePos.x = e.pageX;
                 this.mousePos.y = e.pageY;
             },
@@ -113,21 +113,17 @@ class World {
         for (let i = 0; i < this.bubbleNum; i++) {
             new Bubble(this);
         }
-        this.update();
+        this.draw();
     }
 
-    update() {
+    draw() {
         this.canvas.width = this.canvas.width;
         for (let i = 0; i < this.bubbleNum; i++) {
             this.items[i].update();
             this.items[i].render();
         }
-        // this.items.forEach(item => {
-        //     item.update();
-        //     item.render();
-        // });
-        window.requestAnimationFrame(() => this.update());
+        window.requestAnimationFrame(() => this.draw());
     }
 }
 
-const world = new World();
+new World();

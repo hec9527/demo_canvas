@@ -15,17 +15,15 @@ body {
 #canvas {
     width: 800px;
     height: 450px;
-    position: absolute;
-    margin: auto;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
     background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(15px);
 }
 
 body {
-    background: url('../bilibili.jpg');
+    background: url('../images/bilibili.jpg');
     background-size: cover;
     background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

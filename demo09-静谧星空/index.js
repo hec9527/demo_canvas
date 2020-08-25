@@ -97,7 +97,7 @@ class Meteor {
     getRandomSpeed() {
         return {
             x: Math.random() * 2 + 6,
-            y: Math.random() * 2 + 6
+            y: Math.random() * 2 + 6,
         };
     }
 
@@ -177,7 +177,7 @@ class Word {
         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.items.forEach(item => {
+        this.items.forEach((item) => {
             item.update();
             item.render();
         });

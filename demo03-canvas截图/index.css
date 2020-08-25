@@ -21,12 +21,13 @@ body {
     bottom: 0;
     right: 0;
     left: 0;
+    backdrop-filter: blur(15px);
     background: rgba(0, 0, 0, 0.3);
     border-radius: 15px;
 }
 
 body {
-    background: url(../bilibili.jpg);
+    background: url(../images/bilibili.jpg);
     background-size: cover;
     background-position: center;
 }

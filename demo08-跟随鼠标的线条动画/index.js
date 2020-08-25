@@ -109,8 +109,12 @@ class World {
         this.particleNum = 55;
         this.clicked = false;
 
+        for (let i = 0; i < this.particleNum; i++) {
+            new Particle(this);
+        }
+
         // 监听
-        window.addEventListener('resize', (e) => {
+        window.addEventListener('resize', () => {
             this.width = this.canvas.width = this.canvas.offsetWidth;
             this.height = this.canvas.height = this.canvas.offsetHeight;
         });
@@ -120,17 +124,8 @@ class World {
             this.mousePos.y = e.pageY;
         });
 
-        window.addEventListener('mousedown', (e) => {
-            this.clicked = true;
-        });
-
-        window.addEventListener('mouseup', (e) => {
-            this.clicked = false;
-        });
-
-        for (let i = 0; i < this.particleNum; i++) {
-            new Particle(this);
-        }
+        window.addEventListener('mousedown', () => (this.clicked = true));
+        window.addEventListener('mouseup', () => (this.clicked = false));
 
         this.render();
     }
@@ -149,4 +144,4 @@ class World {
     }
 }
 
-const world = new World();
+new World();

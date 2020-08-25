@@ -45,7 +45,7 @@ function getDistance(x1, y1, x2, y2) {
 function rotateVector(v, theta) {
     return {
         dx: v.dx * Math.cos(theta) - v.dy * Math.sin(theta),
-        dy: v.dy * Math.cos(theta) + v.dx * Math.sin(theta)
+        dy: v.dy * Math.cos(theta) + v.dx * Math.sin(theta),
     };
 }
 
@@ -57,11 +57,11 @@ function rotateVector(v, theta) {
 function resolveCollision(p1, p2) {
     let v1 = {
         dx: p1.dx,
-        dy: p1.dy
+        dy: p1.dy,
     };
     let v2 = {
         dx: p2.dx,
-        dy: p2.dy
+        dy: p2.dy,
     };
 
     let theta = -Math.atan2(p1.y - p2.y, p1.x - p2.x);
@@ -72,16 +72,12 @@ function resolveCollision(p1, p2) {
 
     // 通过完全弹性碰撞公式计算新的速度（旋转后的坐标）
     let v1RotatedAfterCollision = {
-        dx:
-            (v1Rotated.dx * (p1.mass - p2.mass) + 2 * p2.mass * v2Rotated.dx) /
-            (p1.mass + p2.mass),
-        dy: v1Rotated.dy
+        dx: (v1Rotated.dx * (p1.mass - p2.mass) + 2 * p2.mass * v2Rotated.dx) / (p1.mass + p2.mass),
+        dy: v1Rotated.dy,
     };
     let v2RotatedAfterCollision = {
-        dx:
-            (v2Rotated.dx * (p2.mass - p1.mass) + 2 * p1.mass * v1Rotated.dx) /
-            (p1.mass + p2.mass),
-        dy: v2Rotated.dy
+        dx: (v2Rotated.dx * (p2.mass - p1.mass) + 2 * p1.mass * v1Rotated.dx) / (p1.mass + p2.mass),
+        dy: v2Rotated.dy,
     };
 
     // 旋转回原来的坐标系
@@ -103,7 +99,7 @@ canvas.height = window.innerHeight;
 // 创建绘制上下文
 let ctx = canvas.getContext('2d');
 
-window.addEventListener('resize', function(event) {
+window.addEventListener('resize', function (event) {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     init();
@@ -120,7 +116,7 @@ function Particle(x, y, mass, dx, dy, radius, color) {
     this.radius = radius;
     this.color = color;
 
-    this.draw = function() {
+    this.draw = function () {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
         ctx.fillStyle = this.color;
@@ -128,15 +124,12 @@ function Particle(x, y, mass, dx, dy, radius, color) {
         ctx.closePath();
     };
 
-    this.update = function(particles) {
+    this.update = function (particles) {
         // 碰撞检测
         for (let p of particles) {
             if (this === p) continue;
             // 发生碰撞
-            if (
-                getDistance(this.x, this.y, p.x, p.y) <=
-                this.radius + p.radius
-            ) {
+            if (getDistance(this.x, this.y, p.x, p.y) <= this.radius + p.radius) {
                 let xVelDiff = p.dx - this.dx;
                 let yVelDiff = p.dy - this.dy;
                 let xDist = p.x - this.x;
@@ -149,17 +142,11 @@ function Particle(x, y, mass, dx, dy, radius, color) {
             }
         }
 
-        if (
-            this.x + this.radius + this.dx > canvas.width ||
-            this.x - this.radius + this.dx < 0
-        ) {
+        if (this.x + this.radius + this.dx > canvas.width || this.x - this.radius + this.dx < 0) {
             this.dx = -this.dx;
         }
 
-        if (
-            this.y + this.radius + this.dy > canvas.height ||
-            this.y - this.radius + this.dy < 0
-        ) {
+        if (this.y + this.radius + this.dy > canvas.height || this.y - this.radius + this.dy < 0) {
             this.dy = -this.dy;
         }
 
@@ -181,10 +168,7 @@ function init() {
 
         // 防止初始化时粒子之间发生重叠
         for (let j = 0; j < particles.length; j++) {
-            if (
-                getDistance(x, y, particles[j].x, particles[j].y) <=
-                radius + particles[j].radius
-            ) {
+            if (getDistance(x, y, particles[j].x, particles[j].y) <= radius + particles[j].radius) {
                 radius = randomIntFromRange(15, 20);
                 x = randomIntFromRange(radius, canvas.width - radius);
                 y = randomIntFromRange(radius, canvas.height - radius);
