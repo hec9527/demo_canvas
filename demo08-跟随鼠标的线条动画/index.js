@@ -44,7 +44,8 @@ class Particle {
             '#ffc952',
             '#47b8e0',
             '#34314c',
-            '#30A9DE',
+            '#FA73B9',
+            '#abfabf',
         ];
         return colors[(Math.random() * colors.length) | 0];
     }

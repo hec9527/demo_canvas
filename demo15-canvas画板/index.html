@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="index.css" />
+        <link rel="stylesheet" href="../lib/font-awesome-4.7.0/css/font-awesome.min.css" />
+        <title>Canvas画板</title>
+    </head>
+    <body>
+        <!-- 
+            仿制window画板
+            逐步完善中 ... 
+         -->
+        <div id="toolbar">
+            <div id="point" title="指针"></div>
+            <div id="select" title="选区"></div>
+            <div id="pens" title="画笔"></div>
+            <div id="eraser" title="橡皮檫"></div>
+            <div id="export" title="导出"></div>
+            <div id="refresh" title="刷新"></div>
+        </div>
+        <canvas id="canvas" width="1920" height="1080"></canvas>
+
+        <script src="index.js"></script>
+    </body>
+</html>
