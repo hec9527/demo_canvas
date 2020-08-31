@@ -1,0 +1,22 @@
+html,
+body {
+    width: 100vw;
+    height: 100vh;
+    padding: 0;
+    margin: 0;
+}
+body {
+    position: relative;
+}
+
+canvas {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    background: #e3e3e3;
+}
+
+#canvas {
+    z-index: 10;
+    background: #fff0;
+}

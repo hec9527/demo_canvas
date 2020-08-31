@@ -29,8 +29,21 @@ class DrawClock {
         };
         this.ctx.font = this.FONT_HEIGHT + 'px Arial';
         this.ctx.fillStyle = '#fff';
-        this.ctx.strokeStyle = '#fff';
+        this.ctx.strokeStyle = '#e3e3e3';
 
+        const gradient = this.ctx.createRadialGradient(
+            this.canvas.width / 2,
+            this.canvas.height / 2,
+            0,
+            this.canvas.width / 2,
+            this.canvas.height / 2,
+            this.RADIUS + 1
+        );
+        gradient.addColorStop(0, '#ffd1ff6f');
+        gradient.addColorStop(0.99, '#fad0c473');
+        gradient.addColorStop(1, '#fad0c411');
+
+        this.gradient = gradient;
         this.draw();
     }
 
@@ -39,6 +52,7 @@ class DrawClock {
         const LINE_WIDTH = 20;
         this.ctx.save();
         this.ctx.lineWidth = LINE_WIDTH;
+        this.ctx.fillStyle = this.gradient;
         this.ctx.beginPath();
         this.ctx.arc(
             this.canvas.width / 2,
@@ -50,6 +64,7 @@ class DrawClock {
         );
         this.ctx.closePath();
         this.ctx.stroke();
+        this.ctx.fill();
         this.ctx.restore();
     }
 
@@ -62,18 +77,19 @@ class DrawClock {
         for (let i = 0; i < 60; i++) {
             this.ctx.beginPath();
             this.ctx.lineWidth = 2;
+            this.ctx.lineJoin = 'round';
 
             const angle = (Math.PI / 30) * i;
-            let lineLength = 10;
+            let lineLength = 8;
 
             if (i % 15 === 0) {
                 // 3 6 9 12小时绘制粗长的直线
                 this.ctx.lineWidth = 8;
-                lineLength = 20;
+                lineLength = 15;
             } else if (i % 5 === 0) {
                 // 冯5的倍数，绘制次级线条
                 this.ctx.lineWidth = 4;
-                lineLength = 15;
+                lineLength = 12;
             }
 
             this.ctx.moveTo(
