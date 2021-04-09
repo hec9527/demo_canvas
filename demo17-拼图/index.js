@@ -7,6 +7,8 @@
 const SCREEN_WIDTH = 516;
 const SCREEN_HEIGHT = 516;
 
+window.shuffle = false;
+
 /**
  * 从DOM中通过ID获取 canvas 并且设定宽高
  * 或者 生成一个指定宽高的离屏canvas
@@ -60,7 +62,7 @@ class Puzzle {
         this.canvas.width = this.canvas.width;
 
         this.init();
-        this.shuffle();
+        window.shuffle ? this.shuffle() : this.moveStep();
         // this.isShuffled = true;
     }
 
@@ -115,7 +117,7 @@ class Puzzle {
         const dx = targetPos[0] - sourcePos[0];
         const dy = targetPos[1] - sourcePos[1];
 
-        if (this.isShuffled) {
+        if (this.isShuffled || window.shuffle) {
             sourcePos[0] = Math.abs(dx) < 1 ? targetPos[0] : sourcePos[0] + dx / 7;
             sourcePos[1] = Math.abs(dy) < 1 ? targetPos[1] : sourcePos[1] + dy / 7;
         } else {
@@ -180,7 +182,73 @@ class Puzzle {
         });
     }
 
+    /** 检测洗牌之后的顺序是否有解 */
+    shuffleCheck(arr) {
+        let outOfOrder = 0;
+        const exChange = (index) => ([arr[index], arr[index + 1]] = [arr[index + 1], arr[index]]);
+
+        for (let i = 0; i < arr.length - 1; i++) {
+            for (let j = i + 1; j < arr.length; j++) {
+                if (arr[i].index > arr[j].index) {
+                    outOfOrder++;
+                }
+            }
+        }
+        console.log('outOfOrder:', outOfOrder);
+        if (outOfOrder % 2 !== 0) {
+            exChange(~~(Math.random() * (this.row ** 2 - 2)));
+            this.shuffleCheck(arr);
+        } else {
+            this.shuffleMove(arr);
+        }
+    }
+
+    shuffleMove(arr) {
+        let overNum = 0;
+        for (let row = 0; row < this.row; row++) {
+            for (let col = 0; col < this.row; col++) {
+                const index = row * this.row + col;
+                const block = this.grid[row][col];
+
+                this.animation(
+                    arr[index].thumb,
+                    [arr[index].x, arr[index].y],
+                    [block.x, block.y],
+                    block.w,
+                    block.h,
+                    () => {
+                        ++overNum;
+                        block.index = arr[index].index;
+                        block.thumb = arr[index].thumb;
+                        // block.x = arr[index].x;
+                        // block.y = arr[index].y;
+                        if (overNum > this.blockIndex) {
+                            setTimeout(() => (this.isShuffled = true), 200);
+                        }
+                        if (block.index === this.blockIndex) {
+                            this.ctx.clearRect(block.x, block.y, block.w, block.h);
+                        }
+                    }
+                );
+            }
+        }
+    }
+
+    /** 使用洗牌算法，公平公正 */
     shuffle() {
+        const arr = this.grid
+            .reduce((pre, cur) => pre.concat(cur), [])
+            .map((item) => ({ ...item }));
+
+        for (let i = this.row * this.row - 1; i >= 0; i--) {
+            const rand = ~~(Math.random() * i);
+            [arr[i], arr[rand]] = [arr[rand], arr[i]];
+        }
+
+        this.shuffleCheck(arr);
+    }
+
+    moveStep() {
         let step = ((Math.random() * 3 * this.row) | 0) + this.row ** 2;
         let lDir = undefined;
 
@@ -237,7 +305,8 @@ class Puzzle {
     }
 
     changeImg(img) {
-        this.img = resizeImg(img);
+        this.img = this.resizeImg(img);
+        this.ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         this.grid.forEach((arr) => arr.forEach((thumb) => this.draw(thumb)));
     }
 
@@ -363,8 +432,9 @@ class Puzzle {
 
     init();
     await selectImg();
-    start();
+    // start();
     toasts('操作指南', '请使用方向按键↑↓←→或者点击移动的图块', 5000);
+    console.log('修改"window.shuffle: true;" 使用洗牌的方式打乱卡片，默认使用移动的方式');
     changeDiffi(1);
 
     btns[0].addEventListener('click', () => start());

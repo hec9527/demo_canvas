@@ -1,4 +1,33 @@
 /**
+ *  配置信息
+ */
+const Config = {
+    linkDistence: 120, // 连线距离
+    particlesNum: 300, // 粒子数量
+    background: '#0303035f', // 背景颜色
+    partilceColor: '#08bbe4', // 粒子颜色
+    lineColor: 'rgba(117, 220, 243, ', // 线条颜色
+};
+
+/**
+ * 粒子精灵
+ * 采用离屏canvas提高性能
+ */
+class ParticlesSprite {
+    constructor() {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 2;
+        canvas.height = 2;
+
+        ctx.fillStyle = Config.partilceColor;
+        ctx.arc(1, 1, 1, 0, Math.PI * 2);
+        ctx.fill();
+        return canvas;
+    }
+}
+
+/**
  * 粒子类
  */
 class Particles {
@@ -8,16 +37,15 @@ class Particles {
 
         this.x = this.word.click ? this.word.mouse.x : Math.random() * this.word.width;
         this.y = this.word.click ? this.word.mouse.y : Math.random() * this.word.height;
-        this.radius = Math.random() * 2 + 1.5;
+        this.r = Math.random() * 1 + 1;
         this.speed = this.getRandomSpeed();
-
-        this.distence = this.word.config.linkDistence;
+        this.links = new Set(); // 缓存已经绘制过的线条，拒绝重复绘制
     }
 
     getRandomSpeed() {
         return {
             x: Math.random() > 0.5 ? Math.random() * 1 + 0.5 : -(Math.random() * 1 + 0.1),
-            y: Math.random() > 0.5 ? Math.random() * 1 + 0.5 : -(Math.random() * 1 + 0.1)
+            y: Math.random() > 0.5 ? Math.random() * 1 + 0.5 : -(Math.random() * 1 + 0.1),
         };
     }
 
@@ -27,14 +55,16 @@ class Particles {
 
     lineTo(particles, perc) {
         this.word.ctx.beginPath();
-        this.word.ctx.moveTo(this.x, this.y);
-        this.word.ctx.lineTo(particles.x, particles.y);
-        this.word.ctx.lineWdith = this.word.config.lineWidth;
-        this.word.ctx.strokeStyle = this.word.config.lineColor + perc + ')';
+        this.word.ctx.moveTo(this.x | 0, this.y | 0);
+        this.word.ctx.lineTo(particles.x | 0, particles.y | 0);
+        this.word.ctx.strokeStyle = Config.lineColor + perc + ')';
         this.word.ctx.stroke();
     }
 
     update() {
+        // 更新link的元素
+        this.links.clear();
+
         // 位置更新
         this.x += this.speed.x;
         this.y += this.speed.y;
@@ -46,28 +76,22 @@ class Particles {
         if ((this.y < 0 && this.speed.y < 0) || (this.y > this.word.height && this.speed.y > 0)) {
             this.speed.y = -this.speed.y;
         }
-
-        // 距离检测
-        this.word.items.forEach(item => {
-            if (item !== this) {
-                const distence = this.getDistence(item);
-                if (distence < this.distence) {
-                    this.lineTo(item, 0.4 - 0.35 * (distence / this.distence));
-                }
-            }
-        });
-
-        // 连线到鼠标
-        if (this.getDistence(this.word.mouse, { x: this.x, y: this.y }) < this.distence) {
-            this.lineTo(this.word.mouse, 0.3);
-        }
     }
 
     render() {
-        this.word.ctx.beginPath();
-        this.word.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        this.word.ctx.fillStyle = this.word.config.partilceColor;
-        this.word.ctx.fill();
+        this.word.ctx.drawImage(this.word.sprite, 0, 0, 2, 2, this.x, this.y, this.r, this.r);
+        this.word.items.forEach((item) => {
+            if (item !== this && !item.links.has(this)) {
+                const distence = this.getDistence(item);
+                if (distence <= Config.linkDistence) {
+                    this.lineTo(item, 0.4 - 0.35 * (distence / Config.linkDistence));
+                    this.links.add(item);
+                }
+            }
+        });
+        if (this.getDistence(this.word.mouse, { x: this.x, y: this.y }) <= Config.linkDistence) {
+            this.lineTo(this.word.mouse, 0.3);
+        }
     }
 }
 
@@ -78,20 +102,13 @@ class Word {
     constructor() {
         this.canvas = document.getElementById('canvas');
         this.ctx = this.canvas.getContext('2d');
+        this.ctx.fillStyle = Config.background;
+        this.ctx.lineWdith = 1;
 
+        this.sprite = new ParticlesSprite();
         this.items = [];
         this.click = false;
         this.mouse = { x: 1, y: 1 };
-
-        // 自定义配置信息
-        this.config = {
-            linkDistence: 120, // 连线距离
-            particlesNum: 200, // 粒子数量
-            lineWidth: 0.1, // 线条宽度
-            background: '#0303035f', // 背景颜色
-            partilceColor: '#4fb0c6', // 粒子颜色
-            lineColor: 'rgba(79, 176, 198, ' // 线条颜色
-        };
 
         // 事件监听
         window.addEventListener('resize', () => this.resize());
@@ -102,7 +119,7 @@ class Word {
             new Particles(this);
             this.click = false;
         });
-        window.addEventListener('mousemove', e => {
+        window.addEventListener('mousemove', (e) => {
             this.mouse.x = e.pageX;
             this.mouse.y = e.pageY;
         });
@@ -112,7 +129,7 @@ class Word {
         this.render();
 
         // 生成粒子
-        for (let i = 0; i < this.config.particlesNum; i++) {
+        for (let i = 0; i < Config.particlesNum; i++) {
             new Particles(this);
         }
     }
@@ -123,13 +140,11 @@ class Word {
     }
 
     render() {
-        this.ctx.fillStyle = this.config.background;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        this.items.forEach(item => {
+        this.items.forEach((item) => {
             item.update();
             item.render();
         });
-
         window.requestAnimationFrame(() => this.render());
     }
 }

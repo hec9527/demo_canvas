@@ -161,9 +161,12 @@ body {
 }
 
 .modals > .content > .body {
+    height: 558px;
+    width: 900px;
+    box-sizing: border-box;
+    overflow: hidden;
     position: relative;
     overflow-y: auto;
-    height: calc(100% - 42px);
 }
 
 .modals > .content > .body > .upload {
