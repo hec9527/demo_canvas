@@ -96,7 +96,7 @@ class World {
         this.canvas = document.getElementById('canvas');
         this.ctx = this.canvas.getContext('2d');
         //摩擦系数
-        this.FRICTIONAL = 0.89;
+        this.FRICTIONAL = 0.85;
         // // 加速度   矢量方向向下
         // this.ACCELERATION = 0.9;
         this.items = [];

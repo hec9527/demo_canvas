@@ -9,3 +9,8 @@ worker.postMessage({ canvas }, [canvas]);
 setTimeout(() => {
     console.log(canvas);
 }, [10]);
+
+setInterval(() => {
+    let x = 1;
+    while (++x < 1000000000) {}
+}, [1000]);
