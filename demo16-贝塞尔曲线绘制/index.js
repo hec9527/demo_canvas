@@ -59,16 +59,16 @@ class ControlPoints {
 
 const POINTS = [new ControlPoints({ x: 400, y: 500 }), new ControlPoints({ x: 600, y: 500 })];
 let lastPoint = { ...POINTS[0].pos };
-document.getElementById('animation').onclick = function (e) {
-    const text = e.target.innerText;
-    if (text === '开启动画') {
-        this.innerText = '关闭动画';
-        isShowAnima = true;
-    } else {
-        this.innerText = '开启动画';
-        isShowAnima = false;
-    }
-};
+// document.getElementById('animation').onclick = function (e) {
+//     const text = e.target.innerText;
+//     if (text === '开启动画') {
+//         this.innerText = '关闭动画';
+//         isShowAnima = true;
+//     } else {
+//         this.innerText = '开启动画';
+//         isShowAnima = false;
+//     }
+// };
 
 document.addEventListener('mouseup', () => (isMoseDown = false));
 document.addEventListener('mousedown', () => (isMoseDown = true));
